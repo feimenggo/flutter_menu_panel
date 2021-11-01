@@ -5,13 +5,18 @@ import 'package:flutter/material.dart';
 
 import 'menu_item.dart';
 
-const double _kMinTileHeight = 40;
-
 /// 菜单展示的位置
 enum MenuAlign {
-  left, // 左边
-  right, // 右边
+  left, // 鼠标左边
+  right, // 鼠标右边
 }
+
+/// 关闭菜单
+void dismiss(BuildContext context) {
+  Navigator.of(context).pop();
+}
+
+const double _kMinTileHeight = 40;
 
 /// The [MenuPanel] is the way to use a [_MenuPanelLayout]
 ///
@@ -24,24 +29,41 @@ class MenuPanel extends StatelessWidget {
   /// A [List] of items to be displayed in an opened [_MenuPanelLayout]
   ///
   /// Usually, a [ListTile] might be the way to go.
-  final List<MenuItem> items;
+  final List<MenuItem>? _items;
+  final List<MenuItem> Function()? _itemsBuilder;
 
   /// The width for the [_MenuPanelLayout]. 320 by default according to Material Design specs.
   final double width;
 
+  /// 菜单展示的位置
   final MenuAlign align;
 
   /// The padding value at the top an bottom between the edge of the [_MenuPanelLayout] and the first / last item
   final double verticalPadding;
 
+  /// 通过items数组传递菜单项
   const MenuPanel({
     Key? key,
     required this.child,
-    required this.items,
+    required List<MenuItem> items,
     this.width = 85,
     this.align = MenuAlign.right,
     this.verticalPadding = 4,
-  }) : super(key: key);
+  })  : _items = items,
+        _itemsBuilder = null,
+        super(key: key);
+
+  /// 通过itemsBuilder按需动态生成菜单项
+  const MenuPanel.builder({
+    Key? key,
+    required this.child,
+    required List<MenuItem> Function() itemsBuilder,
+    this.width = 85,
+    this.align = MenuAlign.right,
+    this.verticalPadding = 4,
+  })  : _itemsBuilder = itemsBuilder,
+        _items = null,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -60,23 +82,25 @@ class MenuPanel extends StatelessWidget {
 
   /// Show a [_MenuPanelLayout] on the given [BuildContext]. For other parameters, see [_MenuPanelLayout].
   void _showMenuPanelLayout(Offset offset, BuildContext context) {
-    final children = items.map((e) {
+    final children = (_items ?? _itemsBuilder!()).map((item) {
       return InkResponse(
         onTap: () {
           Navigator.of(context).pop();
-          e.onTap?.call();
+          item.onTap?.call();
         },
         splashColor: Colors.transparent,
         highlightShape: BoxShape.rectangle,
-        child: Align(
-          child: Text(
-            e.name,
-            style: e.style ??
-                const TextStyle(
-                  fontWeight: FontWeight.bold,
+        child: item is CustomMenuItem
+            ? item.builder(context)
+            : Align(
+                child: Text(
+                  item.name,
+                  style: item.style ??
+                      const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
-          ),
-        ),
+              ),
       );
     }).toList(growable: false);
     showModal(

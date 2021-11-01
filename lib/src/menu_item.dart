@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 
+/// 文本菜单项
 class MenuItem {
   final String name;
   final TextStyle? style;
-
-  // final List<SubMenuItem>? subItems;
   final VoidCallback? onTap;
 
-  MenuItem(
+  const MenuItem(
     this.name,
     this.onTap, {
     this.style,
-    // this.subItems
   });
 }
 
-// class SubMenuItem extends MenuItem {
-//   SubMenuItem(String name, VoidCallback? onTap) : super(name, onTap);
-// }
+/// 自定义菜单项
+class CustomMenuItem extends MenuItem {
+  final WidgetBuilder builder;
+
+  const CustomMenuItem(this.builder) : super('', null);
+}
