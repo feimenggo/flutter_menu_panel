@@ -68,6 +68,7 @@ class MenuPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTapUp: (details) => _showMenuPanelLayout(
         details.globalPosition,
         context,
