@@ -39,9 +39,11 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Menu Panel'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
+      body: Center(
         child: MenuPanel(
+          align: MenuAlign.left,
+          anchor: MenuAnchor.childBottomLeft,
+          offset: const Offset(-10, 10),
           items: [
             MenuItem('书籍设置', () {
               print('点击：书籍设置');
@@ -64,13 +66,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: const TextStyle(
                     color: Colors.red, fontWeight: FontWeight.bold)),
           ],
-          child: Card(
+          child: Container(
+            width: 100,
+            height: 50,
             color: Theme.of(context).primaryColor,
             child: Center(
               child: Text(
-                'Press somewhere for menu panel.',
+                '打开菜单',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onPrimary,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

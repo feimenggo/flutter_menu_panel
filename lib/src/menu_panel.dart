@@ -5,10 +5,17 @@ import 'package:flutter/material.dart';
 
 import 'menu_item.dart';
 
-/// 菜单展示的位置
+/// 菜单展示的方向
 enum MenuAlign {
   left, // 鼠标左边
   right, // 鼠标右边
+}
+
+/// 菜单展示的位置
+enum MenuAnchor {
+  pointer, // 指针处
+  childBottomLeft, // child左下角
+  childBottomRight, // child右下角
 }
 
 /// 关闭菜单
@@ -35,31 +42,43 @@ class MenuPanel extends StatelessWidget {
   /// The width for the [_MenuPanelLayout]. 320 by default according to Material Design specs.
   final double width;
 
-  /// 菜单展示的位置
+  /// 菜单展示的方向
   final MenuAlign align;
+
+  /// 菜单展示的位置
+  final MenuAnchor anchor;
+
+  /// 菜单展示的偏移量
+  final Offset offset;
 
   /// The padding value at the top an bottom between the edge of the [_MenuPanelLayout] and the first / last item
   final double verticalPadding;
 
+  final GlobalKey _childKey = GlobalKey();
+
   /// 通过items数组传递菜单项
-  const MenuPanel({
+  MenuPanel({
     Key? key,
     required this.child,
     required List<MenuItem> items,
     this.width = 85,
     this.align = MenuAlign.right,
+    this.anchor = MenuAnchor.pointer,
+    this.offset = Offset.zero,
     this.verticalPadding = 4,
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
 
   /// 通过itemsBuilder按需动态生成菜单项
-  const MenuPanel.builder({
+  MenuPanel.builder({
     Key? key,
     required this.child,
     required List<MenuItem> Function() itemsBuilder,
     this.width = 85,
     this.align = MenuAlign.right,
+    this.anchor = MenuAnchor.pointer,
+    this.offset = Offset.zero,
     this.verticalPadding = 4,
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
@@ -67,22 +86,42 @@ class MenuPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTapUp: (details) => _showMenuPanelLayout(
-        details.globalPosition,
-        context,
-      ),
-      onSecondaryTapUp: (details) => _showMenuPanelLayout(
-        details.globalPosition,
-        context,
-      ),
-      child: child,
-    );
+    if (anchor == MenuAnchor.pointer) {
+      return GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTapUp: (details) => _showMenuPanelLayout(
+          details.globalPosition,
+          context,
+        ),
+        onSecondaryTapUp: (details) => _showMenuPanelLayout(
+          details.globalPosition,
+          context,
+        ),
+        child: child,
+      );
+    } else {
+      return GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          final renderBox =
+              _childKey.currentContext!.findRenderObject() as RenderBox;
+          final position = renderBox.localToGlobal(Offset.zero);
+          final size = renderBox.size;
+          Offset offset;
+          if (anchor == MenuAnchor.childBottomLeft) {
+            offset = position + Offset(0, size.height);
+          } else {
+            offset = position + Offset(size.width, size.height);
+          }
+          _showMenuPanelLayout(offset, context);
+        },
+        child: Container(key: _childKey, child: child),
+      );
+    }
   }
 
   /// Show a [_MenuPanelLayout] on the given [BuildContext]. For other parameters, see [_MenuPanelLayout].
-  void _showMenuPanelLayout(Offset offset, BuildContext context) {
+  void _showMenuPanelLayout(Offset location, BuildContext context) {
     final children = (_items ?? _itemsBuilder!()).map((item) {
       return InkResponse(
         onTap: () {
@@ -112,7 +151,7 @@ class MenuPanel extends StatelessWidget {
         reverseTransitionDuration: Duration.zero,
       ),
       builder: (context) => _MenuPanelLayout(
-        position: offset,
+        position: location + offset,
         children: children,
         width: width,
         align: align,
@@ -215,8 +254,8 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
               // 投影
               BoxShadow(
                 blurRadius: 12, // 延伸距离，会有模糊效果
-                offset: Offset(0, 4), // x,y轴偏移量
-                color: Color(0x141D1F4B), // 投影颜色
+                offset: Offset(0, 2), // x,y轴偏移量
+                color: Colors.black, // 投影颜色
               ),
             ],
             borderRadius: BorderRadius.circular(6),
