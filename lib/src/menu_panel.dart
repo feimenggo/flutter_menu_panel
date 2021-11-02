@@ -54,6 +54,10 @@ class MenuPanel extends StatelessWidget {
   /// The padding value at the top an bottom between the edge of the [_MenuPanelLayout] and the first / last item
   final double verticalPadding;
 
+  final Alignment alignment;
+
+  final EdgeInsets padding;
+
   final GlobalKey _childKey = GlobalKey();
 
   /// 通过items数组传递菜单项
@@ -65,6 +69,8 @@ class MenuPanel extends StatelessWidget {
     this.align = MenuAlign.right,
     this.anchor = MenuAnchor.pointer,
     this.offset = Offset.zero,
+    this.alignment = Alignment.center,
+    this.padding = EdgeInsets.zero,
     this.verticalPadding = 4,
   })  : _items = items,
         _itemsBuilder = null,
@@ -79,6 +85,8 @@ class MenuPanel extends StatelessWidget {
     this.align = MenuAlign.right,
     this.anchor = MenuAnchor.pointer,
     this.offset = Offset.zero,
+    this.alignment = Alignment.center,
+    this.padding = EdgeInsets.zero,
     this.verticalPadding = 4,
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
@@ -132,13 +140,17 @@ class MenuPanel extends StatelessWidget {
         highlightShape: BoxShape.rectangle,
         child: item is CustomMenuItem
             ? item.builder(context)
-            : Align(
-                child: Text(
-                  item.name,
-                  style: item.style ??
-                      const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+            : Padding(
+                padding: padding,
+                child: Align(
+                  alignment: alignment,
+                  child: Text(
+                    item.name,
+                    style: item.style ??
+                        const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
                 ),
               ),
       );
