@@ -41,6 +41,10 @@ class MenuPanel extends StatelessWidget {
   /// The padding value at the top an bottom between the edge of the [_MenuPanelLayout] and the first / last item
   final double verticalPadding;
 
+  final Alignment alignment;
+
+  final EdgeInsets padding;
+
   /// 通过items数组传递菜单项
   const MenuPanel({
     Key? key,
@@ -49,6 +53,8 @@ class MenuPanel extends StatelessWidget {
     this.width = 85,
     this.align = MenuAlign.right,
     this.verticalPadding = 4,
+    this.alignment = Alignment.center,
+    this.padding = EdgeInsets.zero
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
@@ -61,6 +67,8 @@ class MenuPanel extends StatelessWidget {
     this.width = 85,
     this.align = MenuAlign.right,
     this.verticalPadding = 4,
+    this.alignment = Alignment.center,
+    this.padding = EdgeInsets.zero
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
         super(key: key);
@@ -92,16 +100,20 @@ class MenuPanel extends StatelessWidget {
         splashColor: Colors.transparent,
         highlightShape: BoxShape.rectangle,
         child: item is CustomMenuItem
-            ? item.builder(context)
-            : Align(
-                child: Text(
-                  item.name,
-                  style: item.style ??
-                      const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ),
+            ? Padding(padding: padding, child: item.builder(context),)
+            : Padding(
+          child: Align(
+            child: Text(
+              item.name,
+              style: item.style ??
+                  const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            alignment: alignment,
+          ),
+          padding: padding,
+        ),
       );
     }).toList(growable: false);
     showModal(
