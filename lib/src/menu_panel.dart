@@ -60,6 +60,8 @@ class MenuPanel extends StatelessWidget {
 
   final GlobalKey _childKey = GlobalKey();
 
+  final double maxHeight;
+
   /// 通过items数组传递菜单项
   MenuPanel({
     Key? key,
@@ -72,6 +74,7 @@ class MenuPanel extends StatelessWidget {
     this.alignment = Alignment.center,
     this.padding = EdgeInsets.zero,
     this.verticalPadding = 4,
+    this.maxHeight = 0
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
@@ -88,6 +91,7 @@ class MenuPanel extends StatelessWidget {
     this.alignment = Alignment.center,
     this.padding = EdgeInsets.zero,
     this.verticalPadding = 4,
+    this.maxHeight = 0
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
         super(key: key);
@@ -168,6 +172,7 @@ class MenuPanel extends StatelessWidget {
         width: width,
         align: align,
         verticalPadding: verticalPadding,
+        maxHeight: maxHeight,
       ),
     );
   }
@@ -194,6 +199,8 @@ class _MenuPanelLayout extends StatefulWidget {
   /// The padding value at the top an bottom between the edge of the [_MenuPanelLayout] and the first / last item
   final double verticalPadding;
 
+  final double maxHeight;
+
   const _MenuPanelLayout({
     Key? key,
     required this.position,
@@ -201,6 +208,7 @@ class _MenuPanelLayout extends StatefulWidget {
     this.width = 85,
     this.align = MenuAlign.right,
     this.verticalPadding = 4,
+    this.maxHeight = 0
   }) : super(key: key);
 
   @override
@@ -223,6 +231,10 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
 
     if (height > MediaQuery.of(context).size.height) {
       height = MediaQuery.of(context).size.height;
+    }
+
+    if (widget.maxHeight != 0) {
+      height = widget.maxHeight;
     }
 
     double paddingLeft;
