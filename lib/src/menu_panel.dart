@@ -62,6 +62,8 @@ class MenuPanel extends StatelessWidget {
 
   final double maxHeight;
 
+  final int initSelectIndex;
+
   /// 通过items数组传递菜单项
   MenuPanel({
     Key? key,
@@ -74,7 +76,8 @@ class MenuPanel extends StatelessWidget {
     this.alignment = Alignment.center,
     this.padding = EdgeInsets.zero,
     this.verticalPadding = 4,
-    this.maxHeight = 0
+    this.maxHeight = 0,
+    this.initSelectIndex = 0
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
@@ -91,7 +94,8 @@ class MenuPanel extends StatelessWidget {
     this.alignment = Alignment.center,
     this.padding = EdgeInsets.zero,
     this.verticalPadding = 4,
-    this.maxHeight = 0
+    this.maxHeight = 0,
+    this.initSelectIndex = 0
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
         super(key: key);
@@ -173,6 +177,7 @@ class MenuPanel extends StatelessWidget {
         align: align,
         verticalPadding: verticalPadding,
         maxHeight: maxHeight,
+        initSelectIndex: initSelectIndex,
       ),
     );
   }
@@ -201,6 +206,8 @@ class _MenuPanelLayout extends StatefulWidget {
 
   final double maxHeight;
 
+  final int initSelectIndex;
+
   const _MenuPanelLayout({
     Key? key,
     required this.position,
@@ -208,7 +215,8 @@ class _MenuPanelLayout extends StatefulWidget {
     this.width = 85,
     this.align = MenuAlign.right,
     this.verticalPadding = 4,
-    this.maxHeight = 0
+    this.maxHeight = 0,
+    this.initSelectIndex = 0
   }) : super(key: key);
 
   @override
@@ -290,6 +298,7 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
               child: ListView(
                 primary: false,
                 shrinkWrap: true,
+                controller: ScrollController(initialScrollOffset: widget.initSelectIndex * _kMinTileHeight),
                 itemExtent: _kMinTileHeight,
                 padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
                 children: widget.children
