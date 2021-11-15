@@ -64,6 +64,8 @@ class MenuPanel extends StatelessWidget {
 
   final int initSelectIndex;
 
+  final bool popRootNavigator;
+
   /// 通过items数组传递菜单项
   MenuPanel({
     Key? key,
@@ -77,7 +79,8 @@ class MenuPanel extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.verticalPadding = 4,
     this.maxHeight = 0,
-    this.initSelectIndex = 0
+    this.initSelectIndex = 0,
+    this.popRootNavigator = true,
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
@@ -95,7 +98,8 @@ class MenuPanel extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.verticalPadding = 4,
     this.maxHeight = 0,
-    this.initSelectIndex = 0
+    this.initSelectIndex = 0,
+    this.popRootNavigator = true,
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
         super(key: key);
@@ -141,7 +145,7 @@ class MenuPanel extends StatelessWidget {
     final children = (_items ?? _itemsBuilder!()).map((item) {
       return InkResponse(
         onTap: () {
-          Navigator.of(context).pop();
+          Navigator.of(context, rootNavigator: popRootNavigator).pop();
           item.onTap?.call();
         },
         splashColor: Colors.transparent,
@@ -208,16 +212,16 @@ class _MenuPanelLayout extends StatefulWidget {
 
   final int initSelectIndex;
 
-  const _MenuPanelLayout({
-    Key? key,
-    required this.position,
-    required this.children,
-    this.width = 85,
-    this.align = MenuAlign.right,
-    this.verticalPadding = 4,
-    this.maxHeight = 0,
-    this.initSelectIndex = 0
-  }) : super(key: key);
+  const _MenuPanelLayout(
+      {Key? key,
+      required this.position,
+      required this.children,
+      this.width = 85,
+      this.align = MenuAlign.right,
+      this.verticalPadding = 4,
+      this.maxHeight = 0,
+      this.initSelectIndex = 0})
+      : super(key: key);
 
   @override
   _MenuPanelLayoutState createState() => _MenuPanelLayoutState();
@@ -298,7 +302,9 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
               child: ListView(
                 primary: false,
                 shrinkWrap: true,
-                controller: ScrollController(initialScrollOffset: widget.initSelectIndex * _kMinTileHeight),
+                controller: ScrollController(
+                    initialScrollOffset:
+                        widget.initSelectIndex * _kMinTileHeight),
                 itemExtent: _kMinTileHeight,
                 padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
                 children: widget.children
