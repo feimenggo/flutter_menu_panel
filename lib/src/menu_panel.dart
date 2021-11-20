@@ -23,7 +23,7 @@ void dismiss(BuildContext context) {
   Navigator.of(context).pop();
 }
 
-const double _kMinTileHeight = 40;
+const double kMinTileHeight = 40;
 
 /// The [MenuPanel] is the way to use a [_MenuPanelLayout]
 ///
@@ -76,7 +76,7 @@ class MenuPanel extends StatelessWidget {
     this.anchor = MenuAnchor.pointer,
     this.offset = Offset.zero,
     this.alignment = Alignment.center,
-    this.padding = EdgeInsets.zero,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.verticalPadding = 4,
     this.maxHeight = 0,
     this.initSelectIndex = 0,
@@ -95,7 +95,7 @@ class MenuPanel extends StatelessWidget {
     this.anchor = MenuAnchor.pointer,
     this.offset = Offset.zero,
     this.alignment = Alignment.center,
-    this.padding = EdgeInsets.zero,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.verticalPadding = 4,
     this.maxHeight = 0,
     this.initSelectIndex = 0,
@@ -143,6 +143,7 @@ class MenuPanel extends StatelessWidget {
   /// Show a [_MenuPanelLayout] on the given [BuildContext]. For other parameters, see [_MenuPanelLayout].
   void _showMenuPanelLayout(Offset location, BuildContext context) {
     final children = (_items ?? _itemsBuilder!()).map((item) {
+      if (item is CustomMenuItem) return item.builder(context);
       return InkResponse(
         onTap: () {
           Navigator.of(context, rootNavigator: popRootNavigator).pop();
@@ -150,21 +151,18 @@ class MenuPanel extends StatelessWidget {
         },
         splashColor: Colors.transparent,
         highlightShape: BoxShape.rectangle,
-        child: item is CustomMenuItem
-            ? item.builder(context)
-            : Padding(
-                padding: padding,
-                child: Align(
-                  alignment: alignment,
-                  child: Text(
-                    item.name,
-                    style: item.style ??
-                        const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
+        child: Container(
+          padding: padding,
+          alignment: alignment,
+          height: kMinTileHeight,
+          child: Text(
+            item.name,
+            style: item.style ??
+                const TextStyle(
+                  fontWeight: FontWeight.bold,
                 ),
-              ),
+          ),
+        ),
       );
     }).toList(growable: false);
     showModal(
@@ -239,7 +237,7 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
     }
 
     final heightsNotAvailable = widget.children.length - _heights.length;
-    height += heightsNotAvailable * _kMinTileHeight;
+    height += heightsNotAvailable * kMinTileHeight;
 
     if (height > MediaQuery.of(context).size.height) {
       height = MediaQuery.of(context).size.height;
@@ -304,8 +302,7 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
                 shrinkWrap: true,
                 controller: ScrollController(
                     initialScrollOffset:
-                        widget.initSelectIndex * _kMinTileHeight),
-                itemExtent: _kMinTileHeight,
+                        widget.initSelectIndex * kMinTileHeight),
                 padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
                 children: widget.children
                     .map(
