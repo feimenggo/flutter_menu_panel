@@ -18,18 +18,19 @@ enum MenuAnchor {
   childBottomRight, // child右下角
 }
 
-/// 关闭菜单
-void dismiss(BuildContext context) {
-  Navigator.of(context).pop();
-}
-
-const double kMinTileHeight = 40;
-
 /// The [MenuPanel] is the way to use a [_MenuPanelLayout]
 ///
 /// It listens for right click and long press and executes [_showMenuPanelLayout]
 /// with the corresponding location [Offset].
 class MenuPanel extends StatelessWidget {
+  /// 条目最小高度
+  static const double kMinItemHeight = 40;
+
+  /// 关闭菜单
+  static void dismiss(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
   /// The widget displayed inside the [MenuPanel]
   final Widget child;
 
@@ -154,7 +155,7 @@ class MenuPanel extends StatelessWidget {
         child: Container(
           padding: padding,
           alignment: alignment,
-          height: kMinTileHeight,
+          height: kMinItemHeight,
           child: Text(
             item.name,
             style: item.style ??
@@ -237,13 +238,13 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
     }
 
     final heightsNotAvailable = widget.children.length - _heights.length;
-    height += heightsNotAvailable * kMinTileHeight;
+    height += heightsNotAvailable * MenuPanel.kMinItemHeight;
 
     if (height > MediaQuery.of(context).size.height) {
       height = MediaQuery.of(context).size.height;
     }
 
-    if (widget.maxHeight != 0) {
+    if (widget.maxHeight != 0 && height > widget.maxHeight) {
       height = widget.maxHeight;
     }
 
@@ -302,7 +303,7 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
                 shrinkWrap: true,
                 controller: ScrollController(
                     initialScrollOffset:
-                        widget.initSelectIndex * kMinTileHeight),
+                        widget.initSelectIndex * MenuPanel.kMinItemHeight),
                 padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
                 children: widget.children
                     .map(
