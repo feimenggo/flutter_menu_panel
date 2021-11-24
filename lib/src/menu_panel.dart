@@ -1,4 +1,3 @@
-import 'package:after_layout/after_layout.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -356,7 +355,8 @@ class _GrowingWidget extends StatefulWidget {
   __GrowingWidgetState createState() => __GrowingWidgetState();
 }
 
-class __GrowingWidgetState extends State<_GrowingWidget> with AfterLayoutMixin {
+class __GrowingWidgetState extends State<_GrowingWidget>
+    with AfterLayoutMixin<_GrowingWidget> {
   final GlobalKey _key = GlobalKey();
 
   @override
@@ -369,7 +369,23 @@ class __GrowingWidgetState extends State<_GrowingWidget> with AfterLayoutMixin {
 
   @override
   void afterFirstLayout(BuildContext context) {
-    final newHeight = _key.currentContext!.size!.height;
-    widget.onHeightChange.call(newHeight);
+    if (mounted) {
+      final newHeight = _key.currentContext!.size!.height;
+      widget.onHeightChange.call(newHeight);
+    }
   }
+}
+
+mixin AfterLayoutMixin<T extends StatefulWidget> on State<T> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.endOfFrame.then(
+      (_) {
+        if (mounted) afterFirstLayout(context);
+      },
+    );
+  }
+
+  void afterFirstLayout(BuildContext context);
 }
