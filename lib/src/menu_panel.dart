@@ -26,9 +26,9 @@ class MenuPanel extends StatelessWidget {
   /// 条目最小高度
   static const double kMinItemHeight = 40;
 
-  /// 关闭菜单
-  static void dismiss(BuildContext context) {
-    Navigator.of(context).pop();
+  /// 关闭菜单面板
+  static void dismiss(BuildContext context, {bool useRootNavigator = true}) {
+    Navigator.of(context, rootNavigator: useRootNavigator).pop();
   }
 
   /// The widget displayed inside the [MenuPanel]
@@ -38,7 +38,7 @@ class MenuPanel extends StatelessWidget {
   ///
   /// Usually, a [ListTile] might be the way to go.
   final List<MenuItem>? _items;
-  final List<MenuItem> Function()? _itemsBuilder;
+  final List<MenuItem> Function(BuildContext context)? _itemsBuilder;
 
   /// The width for the [_MenuPanelLayout]. 320 by default according to Material Design specs.
   final double width;
@@ -65,7 +65,7 @@ class MenuPanel extends StatelessWidget {
 
   final int initSelectIndex;
 
-  final bool popRootNavigator;
+  final bool useRootNavigator;
 
   /// 通过items数组传递菜单项
   MenuPanel({
@@ -81,7 +81,7 @@ class MenuPanel extends StatelessWidget {
     this.verticalPadding = 4,
     this.maxHeight = 0,
     this.initSelectIndex = 0,
-    this.popRootNavigator = true,
+    this.useRootNavigator = true,
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
@@ -90,7 +90,7 @@ class MenuPanel extends StatelessWidget {
   MenuPanel.builder({
     Key? key,
     required this.child,
-    required List<MenuItem> Function() itemsBuilder,
+    required List<MenuItem> Function(BuildContext context) itemsBuilder,
     this.width = 85,
     this.align = MenuAlign.right,
     this.anchor = MenuAnchor.pointer,
@@ -100,7 +100,7 @@ class MenuPanel extends StatelessWidget {
     this.verticalPadding = 4,
     this.maxHeight = 0,
     this.initSelectIndex = 0,
-    this.popRootNavigator = true,
+    this.useRootNavigator = true,
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
         super(key: key);
@@ -143,11 +143,11 @@ class MenuPanel extends StatelessWidget {
 
   /// Show a [_MenuPanelLayout] on the given [BuildContext]. For other parameters, see [_MenuPanelLayout].
   void _showMenuPanelLayout(Offset location, BuildContext context) {
-    final children = (_items ?? _itemsBuilder!()).map((item) {
+    final children = (_items ?? _itemsBuilder!(context)).map((item) {
       if (item is CustomMenuItem) return item.builder(context);
       return InkResponse(
         onTap: () {
-          Navigator.of(context, rootNavigator: popRootNavigator).pop();
+          dismiss(context, useRootNavigator: useRootNavigator);
           item.onTap?.call();
         },
         splashColor: Colors.transparent,
@@ -168,6 +168,7 @@ class MenuPanel extends StatelessWidget {
     }).toList(growable: false);
     showModal(
       context: context,
+      useRootNavigator: useRootNavigator,
       configuration: const FadeScaleTransitionConfiguration(
         barrierColor: Colors.transparent,
         transitionDuration: Duration.zero,

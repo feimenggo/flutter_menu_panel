@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  animations: ^2.0.1
+  animations: ^2.0.2
   after_layout: ^1.1.0
 
 dev_dependencies:
