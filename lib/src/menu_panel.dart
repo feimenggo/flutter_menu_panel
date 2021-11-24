@@ -67,6 +67,8 @@ class MenuPanel extends StatelessWidget {
 
   final bool useRootNavigator;
 
+  final GestureTapCallback? onTapUp;
+
   /// 通过items数组传递菜单项
   MenuPanel({
     Key? key,
@@ -82,6 +84,7 @@ class MenuPanel extends StatelessWidget {
     this.maxHeight = 0,
     this.initSelectIndex = 0,
     this.useRootNavigator = true,
+    this.onTapUp,
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
@@ -95,12 +98,13 @@ class MenuPanel extends StatelessWidget {
     this.align = MenuAlign.right,
     this.anchor = MenuAnchor.pointer,
     this.offset = Offset.zero,
-    this.alignment = Alignment.center,
+    this.alignment = Alignment.centerLeft,
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.verticalPadding = 4,
     this.maxHeight = 0,
     this.initSelectIndex = 0,
     this.useRootNavigator = true,
+    this.onTapUp,
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
         super(key: key);
@@ -108,37 +112,39 @@ class MenuPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (anchor == MenuAnchor.pointer) {
+      onPointerTap(TapUpDetails details) => _onPointerTap(context, details);
       return GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTapUp: (details) => _showMenuPanelLayout(
-          details.globalPosition,
-          context,
-        ),
-        onSecondaryTapUp: (details) => _showMenuPanelLayout(
-          details.globalPosition,
-          context,
-        ),
+        behavior: HitTestBehavior.opaque,
+        onTapUp: onTapUp != null ? (details) => onTapUp!.call() : onPointerTap,
+        onSecondaryTapUp: onPointerTap,
         child: child,
       );
     } else {
+      onTargetTap() => _onTargetTap(context);
       return GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          final renderBox =
-              _childKey.currentContext!.findRenderObject() as RenderBox;
-          final position = renderBox.localToGlobal(Offset.zero);
-          final size = renderBox.size;
-          Offset offset;
-          if (anchor == MenuAnchor.childBottomLeft) {
-            offset = position + Offset(0, size.height);
-          } else {
-            offset = position + Offset(size.width, size.height);
-          }
-          _showMenuPanelLayout(offset, context);
-        },
+        behavior: HitTestBehavior.opaque,
+        onTap: onTapUp ?? onTargetTap,
+        onSecondaryTap: onTargetTap,
         child: Container(key: _childKey, child: child),
       );
     }
+  }
+
+  void _onPointerTap(BuildContext context, TapUpDetails details) {
+    _showMenuPanelLayout(details.globalPosition, context);
+  }
+
+  void _onTargetTap(BuildContext context) {
+    final renderBox = _childKey.currentContext!.findRenderObject() as RenderBox;
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+    Offset offset;
+    if (anchor == MenuAnchor.childBottomLeft) {
+      offset = position + Offset(0, size.height);
+    } else {
+      offset = position + Offset(size.width, size.height);
+    }
+    _showMenuPanelLayout(offset, context);
   }
 
   /// Show a [_MenuPanelLayout] on the given [BuildContext]. For other parameters, see [_MenuPanelLayout].
