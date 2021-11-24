@@ -69,6 +69,8 @@ class MenuPanel extends StatelessWidget {
 
   final GestureTapCallback? onTapUp;
 
+  final bool enableLongPress;
+
   /// 通过items数组传递菜单项
   MenuPanel({
     Key? key,
@@ -85,6 +87,7 @@ class MenuPanel extends StatelessWidget {
     this.initSelectIndex = 0,
     this.useRootNavigator = true,
     this.onTapUp,
+    this.enableLongPress = false,
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
@@ -105,6 +108,7 @@ class MenuPanel extends StatelessWidget {
     this.initSelectIndex = 0,
     this.useRootNavigator = true,
     this.onTapUp,
+    this.enableLongPress = false,
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
         super(key: key);
@@ -112,11 +116,15 @@ class MenuPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (anchor == MenuAnchor.pointer) {
-      onPointerTap(TapUpDetails details) => _onPointerTap(context, details);
+      onPointerTap(TapUpDetails details) =>
+          _onPointerTap(context, details.globalPosition);
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapUp: onTapUp != null ? (details) => onTapUp!.call() : onPointerTap,
         onSecondaryTapUp: onPointerTap,
+        onLongPressStart: enableLongPress
+            ? (details) => _onPointerTap(context, details.globalPosition)
+            : null,
         child: child,
       );
     } else {
@@ -130,8 +138,8 @@ class MenuPanel extends StatelessWidget {
     }
   }
 
-  void _onPointerTap(BuildContext context, TapUpDetails details) {
-    _showMenuPanelLayout(details.globalPosition, context);
+  void _onPointerTap(BuildContext context, Offset globalPosition) {
+    _showMenuPanelLayout(globalPosition, context);
   }
 
   void _onTargetTap(BuildContext context) {
@@ -166,6 +174,7 @@ class MenuPanel extends StatelessWidget {
             item.name,
             style: item.style ??
                 const TextStyle(
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
           ),
