@@ -318,7 +318,7 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
                 shrinkWrap: true,
                 controller: ScrollController(
                     initialScrollOffset:
-                        widget.initSelectIndex * MenuPanel.kMinItemHeight),
+                    widget.initSelectIndex >= 0 ? widget.initSelectIndex * MenuPanel.kMinItemHeight : 0),
                 padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
                 children: widget.children
                     .map(
