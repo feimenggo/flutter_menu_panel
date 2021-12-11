@@ -1,5 +1,4 @@
 import 'package:animations/animations.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'menu_item.dart';
@@ -305,7 +304,7 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
               BoxShadow(
                 blurRadius: 12, // 延伸距离，会有模糊效果
                 offset: Offset(0, 2), // x,y轴偏移量
-                color: Colors.black, // 投影颜色
+                color: Color(0x33000000), // 投影颜色
               ),
             ],
             borderRadius: BorderRadius.circular(6),
@@ -313,6 +312,7 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: Material(
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: ListView(
                 primary: false,
                 shrinkWrap: true,
