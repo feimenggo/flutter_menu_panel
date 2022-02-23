@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +18,17 @@ enum MenuAnchor {
   childBottomLeft, // child左下角
   childBottomRight, // child右下角
 }
+
+/// 菜单数据
+class MenuData {
+  final int selectIndex;
+  final List<MenuItem> items;
+
+  MenuData(this.items, {int selectIndex = 0})
+      : selectIndex = min(max(selectIndex, 0), items.length);
+}
+
+typedef MenuItemBuilder = FutureOr<MenuData> Function(BuildContext context);
 
 /// The [MenuPanel] is the way to use a [_MenuPanelLayout]
 ///
@@ -36,7 +50,7 @@ class MenuPanel extends StatelessWidget {
   ///
   /// Usually, a [ListTile] might be the way to go.
   final List<MenuItem>? _items;
-  final List<MenuItem> Function(BuildContext context)? _itemsBuilder;
+  final MenuItemBuilder? _itemsBuilder;
 
   /// The width for the [_MenuPanelLayout]. 320 by default according to Material Design specs.
   final double width;
@@ -61,8 +75,6 @@ class MenuPanel extends StatelessWidget {
 
   final double maxHeight;
 
-  final int initSelectIndex;
-
   final bool useRootNavigator;
 
   final GestureTapCallback? onTapUp;
@@ -82,7 +94,6 @@ class MenuPanel extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.verticalPadding = 4,
     this.maxHeight = 0,
-    this.initSelectIndex = 0,
     this.useRootNavigator = true,
     this.onTapUp,
     this.enableLongPress = false,
@@ -94,7 +105,7 @@ class MenuPanel extends StatelessWidget {
   MenuPanel.builder({
     Key? key,
     required this.child,
-    required List<MenuItem> Function(BuildContext context) itemsBuilder,
+    required MenuItemBuilder itemsBuilder,
     this.width = 85,
     this.align = MenuAlign.right,
     this.anchor = MenuAnchor.pointer,
@@ -103,7 +114,6 @@ class MenuPanel extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.verticalPadding = 4,
     this.maxHeight = 0,
-    this.initSelectIndex = 0,
     this.useRootNavigator = true,
     this.onTapUp,
     this.enableLongPress = false,
@@ -154,8 +164,24 @@ class MenuPanel extends StatelessWidget {
   }
 
   /// Show a [_MenuPanelLayout] on the given [BuildContext]. For other parameters, see [_MenuPanelLayout].
-  void _showMenuPanelLayout(Offset location, BuildContext context) {
-    final children = (_items ?? _itemsBuilder!(context)).map((item) {
+  void _showMenuPanelLayout(Offset location, BuildContext context) async {
+    int initSelectIndex;
+    List<MenuItem> items;
+    if (_items != null) {
+      items = _items!;
+      initSelectIndex = 0;
+    } else {
+      final result = _itemsBuilder!(context);
+      if (result is Future<MenuData>) {
+        final data = await result;
+        items = data.items;
+        initSelectIndex = data.selectIndex;
+      } else {
+        items = result.items;
+        initSelectIndex = result.selectIndex;
+      }
+    }
+    final children = items.map((item) {
       if (item is CustomMenuItem) return item.builder(context);
       return InkResponse(
         onTap: () {
@@ -317,8 +343,9 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
                 primary: false,
                 shrinkWrap: true,
                 controller: ScrollController(
-                    initialScrollOffset:
-                    widget.initSelectIndex >= 0 ? widget.initSelectIndex * MenuPanel.kMinItemHeight : 0),
+                    initialScrollOffset: widget.initSelectIndex >= 0
+                        ? widget.initSelectIndex * MenuPanel.kMinItemHeight
+                        : 0),
                 padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
                 children: widget.children
                     .map(
