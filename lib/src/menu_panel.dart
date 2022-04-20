@@ -81,6 +81,9 @@ class MenuPanel extends StatelessWidget {
 
   final bool enableLongPress;
 
+  /// 鼠标样式
+  final MouseCursor? cursor;
+
   /// 通过items数组传递菜单项
   MenuPanel({
     Key? key,
@@ -97,6 +100,7 @@ class MenuPanel extends StatelessWidget {
     this.useRootNavigator = true,
     this.onTapUp,
     this.enableLongPress = false,
+    this.cursor = SystemMouseCursors.click,
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
@@ -117,16 +121,18 @@ class MenuPanel extends StatelessWidget {
     this.useRootNavigator = true,
     this.onTapUp,
     this.enableLongPress = false,
+    this.cursor = SystemMouseCursors.click,
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    Widget widget;
     if (anchor == MenuAnchor.pointer) {
       onPointerTap(TapUpDetails details) =>
           _onPointerTap(context, details.globalPosition);
-      return GestureDetector(
+      widget = GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapUp: onTapUp != null ? (details) => onTapUp!.call() : onPointerTap,
         onSecondaryTapUp: onPointerTap,
@@ -137,13 +143,17 @@ class MenuPanel extends StatelessWidget {
       );
     } else {
       onTargetTap() => _onTargetTap(context);
-      return GestureDetector(
+      widget = GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTapUp ?? onTargetTap,
         onSecondaryTap: onTargetTap,
         child: Container(key: _childKey, child: child),
       );
     }
+    if (cursor != null) {
+      widget = MouseRegion(cursor: cursor!, child: widget);
+    }
+    return widget;
   }
 
   void _onPointerTap(BuildContext context, Offset globalPosition) {
