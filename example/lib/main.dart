@@ -45,22 +45,22 @@ class _MyHomePageState extends State<MyHomePage> {
           anchor: MenuAnchor.childBottomLeft,
           offset: const Offset(-10, 10),
           items: [
-            MenuItem('书籍设置', () {
+            TextMenuItem('书籍设置', () {
               print('点击：书籍设置');
             }),
-            MenuItem('书籍预览', () {
+            TextMenuItem('书籍预览', () {
               print('点击：书籍预览');
             }),
-            MenuItem('导出书籍', () {
+            TextMenuItem('导出书籍', () {
               print('点击：导出书籍');
             }),
-            MenuItem('导入章节', () {
+            TextMenuItem('导入章节', () {
               print('点击：导入章节');
             }),
-            MenuItem('移至分组', () {
+            TextMenuItem('移至分组', () {
               print('点击：移至分组');
             }),
-            MenuItem('删除书籍', () {
+            TextMenuItem('删除书籍', () {
               print('点击：删除书籍');
             },
                 style: const TextStyle(

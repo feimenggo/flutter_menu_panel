@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 /// 文本菜单项
-class MenuItem {
+class TextMenuItem {
   final String name;
   final TextStyle? style;
   final VoidCallback? onTap;
 
-  const MenuItem(
+  const TextMenuItem(
     this.name,
     this.onTap, {
     this.style,
@@ -14,7 +14,7 @@ class MenuItem {
 }
 
 /// 自定义菜单项
-class CustomMenuItem extends MenuItem {
+class CustomMenuItem extends TextMenuItem {
   final WidgetBuilder builder;
 
   const CustomMenuItem(this.builder) : super('', null);

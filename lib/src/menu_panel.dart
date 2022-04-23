@@ -22,7 +22,7 @@ enum MenuAnchor {
 /// 菜单数据
 class MenuData {
   final int selectIndex;
-  final List<MenuItem> items;
+  final List<TextMenuItem> items;
 
   MenuData(this.items, {int selectIndex = 0})
       : selectIndex = min(max(selectIndex, 0), items.length);
@@ -49,7 +49,7 @@ class MenuPanel extends StatelessWidget {
   /// A [List] of items to be displayed in an opened [_MenuPanelLayout]
   ///
   /// Usually, a [ListTile] might be the way to go.
-  final List<MenuItem>? _items;
+  final List<TextMenuItem>? _items;
   final MenuItemBuilder? _itemsBuilder;
 
   /// The width for the [_MenuPanelLayout]. 320 by default according to Material Design specs.
@@ -88,7 +88,7 @@ class MenuPanel extends StatelessWidget {
   MenuPanel({
     Key? key,
     required this.child,
-    required List<MenuItem> items,
+    required List<TextMenuItem> items,
     this.width = 85,
     this.align = MenuAlign.right,
     this.anchor = MenuAnchor.pointer,
@@ -176,7 +176,7 @@ class MenuPanel extends StatelessWidget {
   /// Show a [_MenuPanelLayout] on the given [BuildContext]. For other parameters, see [_MenuPanelLayout].
   void _showMenuPanelLayout(Offset location, BuildContext context) async {
     int initSelectIndex;
-    List<MenuItem> items;
+    List<TextMenuItem> items;
     if (_items != null) {
       items = _items!;
       initSelectIndex = 0;
@@ -417,7 +417,7 @@ mixin AfterLayoutMixin<T extends StatefulWidget> on State<T> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.endOfFrame.then(
+    WidgetsBinding.instance.endOfFrame.then(
       (_) {
         if (mounted) afterFirstLayout(context);
       },
