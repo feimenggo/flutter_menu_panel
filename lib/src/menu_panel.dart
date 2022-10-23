@@ -13,7 +13,7 @@ enum MenuAlign {
 }
 
 /// 菜单展示的位置
-enum MenuAnchor {
+enum MenuLocation {
   pointer, // 指针处
   childBottomLeft, // child左下角
   childBottomRight, // child右下角
@@ -59,7 +59,7 @@ class MenuPanel extends StatelessWidget {
   final MenuAlign align;
 
   /// 菜单展示的位置
-  final MenuAnchor anchor;
+  final MenuLocation location;
 
   /// 菜单展示的偏移量
   final Offset offset;
@@ -91,7 +91,7 @@ class MenuPanel extends StatelessWidget {
     required List<TextMenuItem> items,
     this.width = 85,
     this.align = MenuAlign.right,
-    this.anchor = MenuAnchor.pointer,
+    this.location = MenuLocation.pointer,
     this.offset = Offset.zero,
     this.alignment = Alignment.center,
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
@@ -112,7 +112,7 @@ class MenuPanel extends StatelessWidget {
     required MenuItemBuilder itemsBuilder,
     this.width = 85,
     this.align = MenuAlign.right,
-    this.anchor = MenuAnchor.pointer,
+    this.location = MenuLocation.pointer,
     this.offset = Offset.zero,
     this.alignment = Alignment.centerLeft,
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
@@ -129,7 +129,7 @@ class MenuPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget widget;
-    if (anchor == MenuAnchor.pointer) {
+    if (location == MenuLocation.pointer) {
       onPointerTap(TapUpDetails details) =>
           _onPointerTap(context, details.globalPosition);
       widget = GestureDetector(
@@ -165,7 +165,7 @@ class MenuPanel extends StatelessWidget {
     final position = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
     Offset offset;
-    if (anchor == MenuAnchor.childBottomLeft) {
+    if (location == MenuLocation.childBottomLeft) {
       offset = position + Offset(0, size.height);
     } else {
       offset = position + Offset(size.width, size.height);

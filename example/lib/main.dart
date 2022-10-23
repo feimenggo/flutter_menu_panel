@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_menu_panel/flutter_menu_panel.dart';
 
@@ -42,29 +43,34 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: MenuPanel(
           align: MenuAlign.left,
-          anchor: MenuAnchor.childBottomLeft,
+          location: MenuLocation.childBottomLeft,
           offset: const Offset(-10, 10),
           items: [
             TextMenuItem('书籍设置', () {
-              print('点击：书籍设置');
+              if (kDebugMode) print('点击：书籍设置');
             }),
             TextMenuItem('书籍预览', () {
-              print('点击：书籍预览');
+              if (kDebugMode) print('点击：书籍预览');
             }),
             TextMenuItem('导出书籍', () {
-              print('点击：导出书籍');
+              if (kDebugMode) print('点击：导出书籍');
             }),
             TextMenuItem('导入章节', () {
-              print('点击：导入章节');
+              if (kDebugMode) print('点击：导入章节');
             }),
             TextMenuItem('移至分组', () {
-              print('点击：移至分组');
+              if (kDebugMode) print('点击：移至分组');
             }),
-            TextMenuItem('删除书籍', () {
-              print('点击：删除书籍');
-            },
-                style: const TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.bold)),
+            TextMenuItem(
+              '删除书籍',
+              () {
+                if (kDebugMode) print('点击：删除书籍');
+              },
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
           child: Container(
             width: 100,
