@@ -34,7 +34,7 @@ typedef MenuItemBuilder = FutureOr<MenuData> Function(BuildContext context);
 ///
 /// It listens for right click and long press and executes [_showMenuPanelLayout]
 /// with the corresponding location [Offset].
-class MenuPanel extends StatelessWidget {
+class MenuPanel extends StatefulWidget {
   /// 条目最小高度
   static const double kMinItemHeight = 40;
 
@@ -71,8 +71,7 @@ class MenuPanel extends StatelessWidget {
 
   final EdgeInsets padding;
 
-  final GlobalKey _childKey = GlobalKey();
-
+  final double? height;
   final double maxHeight;
 
   final bool useRootNavigator;
@@ -84,8 +83,11 @@ class MenuPanel extends StatelessWidget {
   /// 鼠标样式
   final MouseCursor? cursor;
 
+  final VoidCallback? onShow;
+  final VoidCallback? onHide;
+
   /// 通过items数组传递菜单项
-  MenuPanel({
+  const MenuPanel({
     Key? key,
     required this.child,
     required List<TextMenuItem> items,
@@ -96,17 +98,20 @@ class MenuPanel extends StatelessWidget {
     this.alignment = Alignment.center,
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.verticalPadding = 4,
+    this.height,
     this.maxHeight = 0,
     this.useRootNavigator = true,
     this.onTapUp,
     this.enableLongPress = false,
     this.cursor = SystemMouseCursors.click,
+    this.onShow,
+    this.onHide,
   })  : _items = items,
         _itemsBuilder = null,
         super(key: key);
 
   /// 通过itemsBuilder按需动态生成菜单项
-  MenuPanel.builder({
+  const MenuPanel.builder({
     Key? key,
     required this.child,
     required MenuItemBuilder itemsBuilder,
@@ -117,71 +122,82 @@ class MenuPanel extends StatelessWidget {
     this.alignment = Alignment.centerLeft,
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.verticalPadding = 4,
+    this.height,
     this.maxHeight = 0,
     this.useRootNavigator = true,
     this.onTapUp,
     this.enableLongPress = false,
     this.cursor = SystemMouseCursors.click,
+    this.onShow,
+    this.onHide,
   })  : _itemsBuilder = itemsBuilder,
         _items = null,
         super(key: key);
 
   @override
+  State<MenuPanel> createState() => _MenuPanelState();
+}
+
+class _MenuPanelState extends State<MenuPanel> {
+  final GlobalKey _childKey = GlobalKey();
+
+  @override
   Widget build(BuildContext context) {
-    Widget widget;
-    if (location == MenuLocation.pointer) {
+    Widget child;
+    if (widget.location == MenuLocation.pointer) {
       onPointerTap(TapUpDetails details) =>
-          _onPointerTap(context, details.globalPosition);
-      widget = GestureDetector(
+          _onPointerTap(details.globalPosition);
+      child = GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTapUp: onTapUp != null ? (details) => onTapUp!.call() : onPointerTap,
+        onTapUp: widget.onTapUp != null
+            ? (details) => widget.onTapUp!.call()
+            : onPointerTap,
         onSecondaryTapUp: onPointerTap,
-        onLongPressStart: enableLongPress
-            ? (details) => _onPointerTap(context, details.globalPosition)
+        onLongPressStart: widget.enableLongPress
+            ? (details) => _onPointerTap(details.globalPosition)
             : null,
-        child: child,
+        child: widget.child,
       );
     } else {
-      onTargetTap() => _onTargetTap(context);
-      widget = GestureDetector(
+      child = GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: onTapUp ?? onTargetTap,
-        onSecondaryTap: onTargetTap,
-        child: Container(key: _childKey, child: child),
+        onTap: widget.onTapUp ?? _onTargetTap,
+        onSecondaryTap: _onTargetTap,
+        child: Container(key: _childKey, child: widget.child),
       );
     }
-    if (cursor != null) {
-      widget = MouseRegion(cursor: cursor!, child: widget);
+    if (widget.cursor != null) {
+      child = MouseRegion(cursor: widget.cursor!, child: child);
     }
-    return widget;
+    return child;
   }
 
-  void _onPointerTap(BuildContext context, Offset globalPosition) {
-    _showMenuPanelLayout(globalPosition, context);
+  void _onPointerTap(Offset globalPosition) {
+    _showMenuPanelLayout(globalPosition);
   }
 
-  void _onTargetTap(BuildContext context) {
+  void _onTargetTap() {
     final renderBox = _childKey.currentContext!.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
     Offset offset;
-    if (location == MenuLocation.childBottomLeft) {
+    if (widget.location == MenuLocation.childBottomLeft) {
       offset = position + Offset(0, size.height);
     } else {
       offset = position + Offset(size.width, size.height);
     }
-    _showMenuPanelLayout(offset, context);
+    _showMenuPanelLayout(offset);
   }
 
   /// Show a [_MenuPanelLayout] on the given [BuildContext]. For other parameters, see [_MenuPanelLayout].
-  void _showMenuPanelLayout(Offset location, BuildContext context) async {
+  void _showMenuPanelLayout(Offset location) async {
     int initSelectIndex;
     List<TextMenuItem> items;
-    if (_items != null) {
-      items = _items!;
+    if (widget._items != null) {
+      items = widget._items!;
       initSelectIndex = 0;
     } else {
-      final result = _itemsBuilder!(context);
+      final result = widget._itemsBuilder!(context);
       if (result is Future<MenuData>) {
         final data = await result;
         items = data.items;
@@ -191,23 +207,25 @@ class MenuPanel extends StatelessWidget {
         initSelectIndex = result.selectIndex;
       }
     }
+    if (!mounted) return;
     final children = items.map((item) {
       if (item is CustomMenuItem) return item.builder(context);
       return InkResponse(
         onTap: () {
-          dismiss(context, useRootNavigator: useRootNavigator);
+          MenuPanel.dismiss(context, useRootNavigator: widget.useRootNavigator);
           item.onTap?.call();
         },
         splashColor: Colors.transparent,
         highlightShape: BoxShape.rectangle,
         child: Container(
-          padding: padding,
-          alignment: alignment,
-          height: kMinItemHeight,
+          padding: widget.padding,
+          alignment: widget.alignment,
+          height: MenuPanel.kMinItemHeight,
           child: Text(
             item.name,
             style: item.style ??
                 const TextStyle(
+                  color: Color(0xFF242A39),
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
@@ -215,24 +233,27 @@ class MenuPanel extends StatelessWidget {
         ),
       );
     }).toList(growable: false);
-    showModal(
+    widget.onShow?.call();
+    await showModal(
       context: context,
-      useRootNavigator: useRootNavigator,
+      useRootNavigator: widget.useRootNavigator,
       configuration: const FadeScaleTransitionConfiguration(
         barrierColor: Colors.transparent,
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),
       builder: (context) => _MenuPanelLayout(
-        position: location + offset,
-        children: children,
-        width: width,
-        align: align,
-        verticalPadding: verticalPadding,
-        maxHeight: maxHeight,
+        position: location + widget.offset,
+        width: widget.width,
+        align: widget.align,
+        verticalPadding: widget.verticalPadding,
+        height: widget.height,
+        maxHeight: widget.maxHeight,
         initSelectIndex: initSelectIndex,
+        children: children,
       ),
     );
+    widget.onHide?.call();
   }
 }
 
@@ -257,6 +278,7 @@ class _MenuPanelLayout extends StatefulWidget {
   /// The padding value at the top an bottom between the edge of the [_MenuPanelLayout] and the first / last item
   final double verticalPadding;
 
+  final double? height;
   final double maxHeight;
 
   final int initSelectIndex;
@@ -268,6 +290,7 @@ class _MenuPanelLayout extends StatefulWidget {
       this.width = 85,
       this.align = MenuAlign.right,
       this.verticalPadding = 4,
+      this.height,
       this.maxHeight = 0,
       this.initSelectIndex = 0})
       : super(key: key);
@@ -283,19 +306,23 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
   Widget build(BuildContext context) {
     double height = 2 * widget.verticalPadding;
 
-    for (var element in _heights.values) {
-      height += element;
-    }
+    if (widget.height == null) {
+      for (var element in _heights.values) {
+        height += element;
+      }
 
-    final heightsNotAvailable = widget.children.length - _heights.length;
-    height += heightsNotAvailable * MenuPanel.kMinItemHeight;
+      final heightsNotAvailable = widget.children.length - _heights.length;
+      height += heightsNotAvailable * MenuPanel.kMinItemHeight;
 
-    if (height > MediaQuery.of(context).size.height) {
-      height = MediaQuery.of(context).size.height;
-    }
+      if (height > MediaQuery.of(context).size.height) {
+        height = MediaQuery.of(context).size.height;
+      }
 
-    if (widget.maxHeight != 0 && height > widget.maxHeight) {
-      height = widget.maxHeight;
+      if (widget.maxHeight != 0 && height > widget.maxHeight) {
+        height = widget.maxHeight;
+      }
+    } else {
+      height = widget.height!;
     }
 
     double paddingLeft;
@@ -399,8 +426,8 @@ class __GrowingWidgetState extends State<_GrowingWidget>
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: widget.child,
       key: _key,
+      child: widget.child,
     );
   }
 

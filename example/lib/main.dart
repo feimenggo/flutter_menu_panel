@@ -37,9 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Menu Panel'),
-      ),
+      appBar: AppBar(title: const Text('Menu Panel')),
       body: Center(
         child: MenuPanel(
           align: MenuAlign.left,
