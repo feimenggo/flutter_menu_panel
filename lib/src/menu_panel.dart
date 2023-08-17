@@ -301,6 +301,7 @@ class _MenuPanelLayout extends StatefulWidget {
 
 class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
   final Map<ValueKey, double> _heights = {};
+  ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -379,7 +380,7 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
               child: ListView(
                 primary: false,
                 shrinkWrap: true,
-                controller: ScrollController(
+                controller: scrollController ??= ScrollController(
                     initialScrollOffset: widget.initSelectIndex >= 0
                         ? widget.initSelectIndex * MenuPanel.kMinItemHeight
                         : 0),
