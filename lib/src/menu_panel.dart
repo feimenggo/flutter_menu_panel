@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:animations/animations.dart';
@@ -148,6 +149,7 @@ class _MenuPanelState extends State<MenuPanel> {
       onPointerTap(TapUpDetails details) =>
           _onPointerTap(details.globalPosition);
       child = GestureDetector(
+        key: _childKey,
         behavior: HitTestBehavior.opaque,
         onTapUp: widget.onTapUp != null
             ? (details) => widget.onTapUp!.call()
@@ -160,10 +162,11 @@ class _MenuPanelState extends State<MenuPanel> {
       );
     } else {
       child = GestureDetector(
+        key: _childKey,
         behavior: HitTestBehavior.opaque,
         onTap: widget.onTapUp ?? _onTargetTap,
         onSecondaryTap: _onTargetTap,
-        child: Container(key: _childKey, child: widget.child),
+        child: widget.child,
       );
     }
     if (widget.cursor != null) {
@@ -173,6 +176,11 @@ class _MenuPanelState extends State<MenuPanel> {
   }
 
   void _onPointerTap(Offset globalPosition) {
+    if (Platform.isAndroid || Platform.isIOS) {
+      final renderBox =
+          _childKey.currentContext!.findRenderObject() as RenderBox;
+      globalPosition -= Offset(0, renderBox.size.height); // 需要减去自身高度
+    }
     _showMenuPanelLayout(globalPosition);
   }
 
@@ -181,10 +189,19 @@ class _MenuPanelState extends State<MenuPanel> {
     final position = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
     Offset offset;
-    if (widget.location == MenuLocation.childBottomLeft) {
-      offset = position + Offset(0, size.height);
+    if (Platform.isAndroid || Platform.isIOS) {
+      // 移动端localToGlobal已经包含自身高度
+      if (widget.location == MenuLocation.childBottomLeft) {
+        offset = position;
+      } else {
+        offset = position + Offset(size.width, 0);
+      }
     } else {
-      offset = position + Offset(size.width, size.height);
+      if (widget.location == MenuLocation.childBottomLeft) {
+        offset = position + Offset(0, size.height);
+      } else {
+        offset = position + Offset(size.width, size.height);
+      }
     }
     _showMenuPanelLayout(offset);
   }

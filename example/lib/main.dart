@@ -38,11 +38,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Menu Panel')),
-      body: Center(
+      body: Align(
+        alignment: Alignment.topCenter,
         child: MenuPanel(
           align: MenuAlign.left,
-          location: MenuLocation.childBottomLeft,
-          offset: const Offset(-10, 10),
+          location: MenuLocation.childBottomRight,
           items: [
             TextMenuItem('书籍设置', () {
               if (kDebugMode) print('点击：书籍设置');
