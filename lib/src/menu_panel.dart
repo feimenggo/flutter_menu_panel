@@ -322,6 +322,8 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+
     double height = 2 * widget.verticalPadding;
 
     if (widget.height == null) {
@@ -332,8 +334,8 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
       final heightsNotAvailable = widget.children.length - _heights.length;
       height += heightsNotAvailable * MenuPanel.kMinItemHeight;
 
-      if (height > MediaQuery.of(context).size.height) {
-        height = MediaQuery.of(context).size.height;
+      if (height > size.height) {
+        height = size.height;
       }
 
       if (widget.maxHeight != 0 && height > widget.maxHeight) {
@@ -343,18 +345,22 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
       height = widget.height!;
     }
 
+    // 移动端需要加上状态栏高度
+    final viewPaddingTop =
+        View.of(context).viewPadding.top / View.of(context).devicePixelRatio;
+    height += viewPaddingTop;
+
     double paddingLeft;
     double paddingRight;
     if (widget.align == MenuAlign.right) {
       paddingLeft = widget.position.dx;
-      paddingRight =
-          MediaQuery.of(context).size.width - widget.position.dx - widget.width;
+      paddingRight = size.width - widget.position.dx - widget.width;
       if (paddingRight < 0) {
         paddingLeft += paddingRight;
         paddingRight = 0;
       }
     } else {
-      paddingRight = MediaQuery.of(context).size.width - widget.position.dx;
+      paddingRight = size.width - widget.position.dx;
       paddingLeft = widget.position.dx - widget.width;
       if (paddingLeft < 0) {
         paddingRight += paddingLeft;
@@ -363,8 +369,7 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
     }
 
     double paddingTop = widget.position.dy;
-    double paddingBottom =
-        MediaQuery.of(context).size.height - widget.position.dy - height;
+    double paddingBottom = size.height - widget.position.dy - height;
     if (paddingBottom < 0) {
       paddingTop += paddingBottom;
       paddingBottom = 0;
@@ -402,18 +407,14 @@ class _MenuPanelLayoutState extends State<_MenuPanelLayout> {
                         ? widget.initSelectIndex * MenuPanel.kMinItemHeight
                         : 0),
                 padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
-                children: widget.children
-                    .map(
-                      (e) => _GrowingWidget(
-                        child: e,
-                        onHeightChange: (height) {
-                          setState(() {
-                            _heights[ValueKey(e)] = height;
-                          });
-                        },
-                      ),
-                    )
-                    .toList(),
+                children: widget.children.map((e) {
+                  return _GrowingWidget(
+                    child: e,
+                    onHeightChange: (height) {
+                      setState(() => _heights[ValueKey(e)] = height);
+                    },
+                  );
+                }).toList(),
               ),
             ),
           ),
