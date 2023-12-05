@@ -77,7 +77,7 @@ class MenuPanel extends StatefulWidget {
 
   final bool useRootNavigator;
 
-  final GestureTapCallback? onTapUp;
+  final GestureTapCallback? onTap;
 
   final bool enableLongPress;
 
@@ -102,7 +102,7 @@ class MenuPanel extends StatefulWidget {
     this.height,
     this.maxHeight = 0,
     this.useRootNavigator = true,
-    this.onTapUp,
+    this.onTap,
     this.enableLongPress = false,
     this.cursor = SystemMouseCursors.click,
     this.onShow,
@@ -126,7 +126,7 @@ class MenuPanel extends StatefulWidget {
     this.height,
     this.maxHeight = 0,
     this.useRootNavigator = true,
-    this.onTapUp,
+    this.onTap,
     this.enableLongPress = false,
     this.cursor = SystemMouseCursors.click,
     this.onShow,
@@ -151,8 +151,8 @@ class _MenuPanelState extends State<MenuPanel> {
       child = GestureDetector(
         key: _childKey,
         behavior: HitTestBehavior.opaque,
-        onTapUp: widget.onTapUp != null
-            ? (details) => widget.onTapUp!.call()
+        onTapUp: widget.onTap != null
+            ? (details) => widget.onTap!.call()
             : onPointerTap,
         onSecondaryTapUp: onPointerTap,
         onLongPressStart: widget.enableLongPress
@@ -164,8 +164,9 @@ class _MenuPanelState extends State<MenuPanel> {
       child = GestureDetector(
         key: _childKey,
         behavior: HitTestBehavior.opaque,
-        onTap: widget.onTapUp ?? _onTargetTap,
+        onTap: widget.onTap ?? _onTargetTap,
         onSecondaryTap: _onTargetTap,
+        onLongPress: widget.enableLongPress ? _onTargetTap : null,
         child: widget.child,
       );
     }
