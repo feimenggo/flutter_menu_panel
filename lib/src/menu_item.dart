@@ -17,5 +17,5 @@ class TextMenuItem {
 class CustomMenuItem extends TextMenuItem {
   final WidgetBuilder builder;
 
-  const CustomMenuItem(this.builder) : super('', null);
+  const CustomMenuItem(this.builder, {VoidCallback? onTap}) : super('', onTap);
 }
