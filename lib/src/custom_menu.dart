@@ -10,7 +10,7 @@ enum MenuPosition {
   topRight,
   topAlignRight,
   bottomLeft,
-  bottomAlignLeft,
+  bottomAlignLeft, // 默认
   bottomCenter,
   bottomRight,
   bottomAlignRight,
@@ -56,8 +56,13 @@ class CustomMenu extends StatefulWidget {
     this.enablePassEvent = true,
     this.below,
     this.onTap,
-    this.enablePointer = false,
+    this.enablePress = true,
     this.enableLongPress = false,
+    this.enablePointer = false,
+    this.onShow,
+    this.onHide,
+    this.rootOverlay,
+    this.cursor,
   });
 
   final Widget child;
@@ -68,13 +73,21 @@ class CustomMenu extends StatefulWidget {
   final MenuPosition position;
   final void Function(bool)? onMenuChange;
   final VoidCallback? onTap;
-  final bool enablePointer;
+  final bool enablePress;
   final bool enableLongPress;
+  final bool enablePointer;
   final OverlayEntry? below;
 
   /// Pass tap event to the widgets below the mask.
   /// It only works when [barrierColor] is transparent.
   final bool enablePassEvent;
+
+  final VoidCallback? onShow;
+  final VoidCallback? onHide;
+  final bool? rootOverlay;
+
+  /// 鼠标样式
+  final MouseCursor? cursor;
 
   @override
   CustomMenuState createState() => CustomMenuState();
@@ -137,7 +150,9 @@ class CustomMenuState extends State<CustomMenu> {
       },
     );
     if (mounted) {
-      Overlay.of(context).insert(_overlayEntry!, below: widget.below);
+      Overlay.of(context, rootOverlay: widget.rootOverlay ?? true)
+          .insert(_overlayEntry!, below: widget.below);
+      widget.onShow?.call();
     }
   }
 
@@ -145,6 +160,7 @@ class CustomMenuState extends State<CustomMenu> {
     if (_overlayEntry != null) {
       _overlayEntry?.remove();
       _overlayEntry = null;
+      widget.onHide?.call();
     }
   }
 
@@ -173,8 +189,10 @@ class CustomMenuState extends State<CustomMenu> {
 
   @override
   Widget build(BuildContext context) {
-    var child = GestureDetector(
+    Widget child = GestureDetector(
       behavior: HitTestBehavior.opaque,
+      onTap: widget.enablePress ? widget.onTap ?? onTap : null,
+      onLongPress: widget.enableLongPress ? onTap : null,
       onSecondaryTapUp: widget.enablePointer
           ? (TapUpDetails details) => _cachePointer = details.globalPosition
           : null,
@@ -183,10 +201,13 @@ class CustomMenuState extends State<CustomMenu> {
               if (_canResponse) _controller.showMenu(_cachePointer);
             }
           : null,
-      onTap: widget.onTap ?? onTap,
-      onLongPress: widget.enableLongPress ? onTap : null,
       child: widget.child,
     );
+    if (widget.cursor != null) {
+      child = MouseRegion(cursor: widget.cursor!, child: child);
+    } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      child = MouseRegion(cursor: SystemMouseCursors.click, child: child);
+    }
     if (Platform.isIOS) {
       return child;
     } else {

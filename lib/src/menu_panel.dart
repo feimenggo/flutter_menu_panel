@@ -27,6 +27,7 @@ class MenuPanel extends StatefulWidget {
     this.controller,
     this.width = 100,
     this.height,
+    this.maxHeight,
     this.position = MenuPosition.bottomAlignLeft,
     this.itemExtent,
     this.itemHeight = kItemHeight,
@@ -41,15 +42,21 @@ class MenuPanel extends StatefulWidget {
         blurRadius: 24, offset: Offset(0, 4), color: Color(0x33000000)),
     this.borderRadius = const BorderRadius.all(Radius.circular(6)),
     this.onTap,
-    this.enablePointer = false,
+    this.enablePress = true,
     this.enableLongPress = false,
+    this.enablePointer = false,
     this.below,
+    this.onShow,
+    this.onHide,
+    this.rootOverlay,
+    this.cursor = SystemMouseCursors.click,
   });
 
   final CustomMenuController? controller;
   final Widget child;
   final double width;
   final double? height;
+  final double? maxHeight;
   final Offset offset;
   final Color? splashColor;
   final Color barrierColor;
@@ -64,9 +71,16 @@ class MenuPanel extends StatefulWidget {
   final AlignmentGeometry itemAlignment;
   final BorderRadiusGeometry? borderRadius;
   final VoidCallback? onTap;
-  final bool enablePointer;
+  final bool enablePress;
   final bool enableLongPress;
+  final bool enablePointer;
   final OverlayEntry? below;
+  final VoidCallback? onShow;
+  final VoidCallback? onHide;
+  final bool? rootOverlay;
+
+  /// 鼠标样式
+  final MouseCursor? cursor;
 
   @override
   State<MenuPanel> createState() => _MenuPanelState();
@@ -91,10 +105,14 @@ class _MenuPanelState extends State<MenuPanel> {
       position: widget.position,
       barrierColor: widget.barrierColor,
       onTap: widget.onTap,
-      enablePointer: widget.enablePointer,
+      enablePress: widget.enablePress,
       enableLongPress: widget.enableLongPress,
+      enablePointer: widget.enablePointer,
       below: widget.below,
       menuBuilder: buildMenu,
+      onShow: widget.onShow,
+      onHide: widget.onHide,
+      rootOverlay: widget.rootOverlay,
       child: widget.child,
     );
   }
@@ -150,6 +168,9 @@ class _MenuPanelState extends State<MenuPanel> {
     return Container(
       width: widget.width,
       height: widget.height,
+      constraints: widget.maxHeight != null
+          ? BoxConstraints(maxHeight: widget.maxHeight!)
+          : null,
       decoration: BoxDecoration(boxShadow: [widget.backgroundShadow]),
       child: Material(
         color: widget.backgroundColor,
