@@ -45,6 +45,8 @@ class MenuPanel extends StatefulWidget {
     this.enablePress = true,
     this.enableLongPress = false,
     this.enablePointer = false,
+    this.enablePassEvent = true,
+    this.style,
     this.below,
     this.onShow,
     this.onHide,
@@ -74,6 +76,8 @@ class MenuPanel extends StatefulWidget {
   final bool enablePress;
   final bool enableLongPress;
   final bool enablePointer;
+  final bool enablePassEvent;
+  final TextStyle? style;
   final OverlayEntry? below;
   final VoidCallback? onShow;
   final VoidCallback? onHide;
@@ -108,6 +112,7 @@ class _MenuPanelState extends State<MenuPanel> {
       enablePress: widget.enablePress,
       enableLongPress: widget.enableLongPress,
       enablePointer: widget.enablePointer,
+      enablePassEvent: widget.enablePassEvent,
       below: widget.below,
       menuBuilder: buildMenu,
       onShow: widget.onShow,
@@ -134,6 +139,7 @@ class _MenuPanelState extends State<MenuPanel> {
           child: Text(
             item.name,
             style: item.style ??
+                widget.style ??
                 const TextStyle(
                   color: Color(0xFF242A39),
                   fontSize: 13,
