@@ -97,7 +97,7 @@ class _MenuPanelState extends State<MenuPanel> {
   @override
   void dispose() {
     super.dispose();
-    controller.dispose();
+    if (widget.controller == null) controller.dispose();
     scrollController?.dispose();
   }
 
