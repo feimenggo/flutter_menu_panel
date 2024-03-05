@@ -3,9 +3,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'custom_menu.dart';
-import 'menu_item.dart';
 
 const kItemHeight = 40.0;
+
+typedef MenuWidgetBuilder = Widget Function(
+    BuildContext context, CustomMenuController controller);
+
+/// 文本菜单项
+class TextMenuItem {
+  final String name;
+  final TextStyle? style;
+  final VoidCallback? onTap;
+
+  const TextMenuItem(this.name, this.onTap, {this.style});
+}
+
+/// 自定义菜单项
+class CustomMenuItem extends TextMenuItem {
+  final MenuWidgetBuilder builder;
+
+  const CustomMenuItem(this.builder, {VoidCallback? onTap}) : super('', onTap);
+}
 
 /// 菜单数据
 class MenuData {
@@ -130,7 +148,7 @@ class _MenuPanelState extends State<MenuPanel> {
       Widget child;
       if (item is CustomMenuItem) {
         if (widget.itemExtent == null) itemExtent = null;
-        child = item.builder(context);
+        child = item.builder(context, controller);
       } else {
         child = Container(
           height: widget.itemHeight,
