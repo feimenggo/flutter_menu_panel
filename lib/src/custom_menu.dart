@@ -32,16 +32,16 @@ class CustomMenuController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleMenu() {
+  void toggleMenu([Offset? globalPosition]) {
     if (menuIsShowing) {
       hideMenu();
     } else {
-      showMenu();
+      showMenu(globalPosition);
     }
   }
 }
 
-Rect _menuRect = Rect.zero;
+List<CustomMenuState>? _menuStates;
 
 class CustomMenu extends StatefulWidget {
   const CustomMenu({
@@ -72,7 +72,7 @@ class CustomMenu extends StatefulWidget {
   final Color barrierColor;
   final MenuPosition position;
   final void Function(bool)? onMenuChange;
-  final VoidCallback? onTap;
+  final void Function(CustomMenuController controller)? onTap;
   final bool enablePress;
   final bool enableLongPress;
   final bool enablePointer;
@@ -98,71 +98,7 @@ class CustomMenuState extends State<CustomMenu> {
   bool _canResponse = true;
   Offset? _cachePointer;
   OverlayEntry? _overlayEntry;
-
-  Future<void> _showMenu(Offset? globalPosition) async {
-    final menuChild = await widget.menuBuilder();
-    _overlayEntry = OverlayEntry(
-      builder: (ctx) {
-        MediaQuery.sizeOf(ctx); // 监听窗口尺寸变化
-        final childBox = context.findRenderObject() as RenderBox;
-        final parentBox =
-            Overlay.of(context).context.findRenderObject() as RenderBox;
-        // print('pSize:${parentBox.size} cSize:${childBox.size}');
-        Widget menu = Container(
-          constraints: BoxConstraints(
-            minWidth: 0,
-            maxWidth: parentBox.size.width,
-          ),
-          child: CustomMultiChildLayout(
-            delegate: _MenuLayoutDelegate(
-              position: widget.position,
-              anchorSize: childBox.size,
-              anchorOffset: childBox.localToGlobal(widget.offset),
-              targetOffset: globalPosition,
-            ),
-            children: <Widget>[
-              LayoutId(
-                  id: 0,
-                  child: Material(color: Colors.transparent, child: menuChild))
-            ],
-          ),
-        );
-        return Listener(
-          behavior: widget.enablePassEvent
-              ? HitTestBehavior.translucent
-              : HitTestBehavior.opaque,
-          onPointerDown: (PointerDownEvent event) {
-            Offset offset = event.localPosition;
-            // If tap position in menu
-            if (_menuRect.contains(Offset(offset.dx, offset.dy))) return;
-            _controller.hideMenu();
-            // When [enablePassEvent] works and we tap the [child] to [hideMenu],
-            // but the passed event would trigger [showMenu] again.
-            // So, we use time threshold to solve this bug.
-            _canResponse = false;
-            Future.delayed(const Duration(milliseconds: 300))
-                .then((_) => _canResponse = true);
-          },
-          child: widget.barrierColor == Colors.transparent
-              ? menu
-              : ColoredBox(color: widget.barrierColor, child: menu),
-        );
-      },
-    );
-    if (mounted) {
-      Overlay.of(context, rootOverlay: widget.rootOverlay ?? true)
-          .insert(_overlayEntry!, below: widget.below);
-      widget.onShow?.call();
-    }
-  }
-
-  void _hideMenu() {
-    if (_overlayEntry != null) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-      widget.onHide?.call();
-    }
-  }
+  Rect? _layoutRect;
 
   void _updateView() {
     bool menuIsShowing = _controller.menuIsShowing;
@@ -172,6 +108,93 @@ class CustomMenuState extends State<CustomMenu> {
     } else {
       _hideMenu();
     }
+  }
+
+  Future<void> _showMenu(Offset? globalPosition) async {
+    if (_overlayEntry != null) return;
+    final menuChild = await widget.menuBuilder();
+    if (mounted) {
+      _overlayEntry = OverlayEntry(
+        builder: (ctx) {
+          MediaQuery.sizeOf(ctx); // 监听窗口尺寸变化
+          final childBox = context.findRenderObject() as RenderBox;
+          final parentBox =
+          Overlay
+              .of(context)
+              .context
+              .findRenderObject() as RenderBox;
+          // print('pSize:${parentBox.size} cSize:${childBox.size}');
+          Widget menu = Container(
+            constraints: BoxConstraints(
+              minWidth: 0,
+              maxWidth: parentBox.size.width,
+            ),
+            child: CustomMultiChildLayout(
+              delegate: _MenuLayoutDelegate(
+                  position: widget.position,
+                  anchorSize: childBox.size,
+                  anchorOffset: childBox.localToGlobal(widget.offset),
+                  targetOffset: globalPosition,
+                  onLayoutChange: (Rect rect) {
+                    _layoutRect = rect;
+                  }),
+              children: <Widget>[
+                LayoutId(
+                    id: 0,
+                    child:
+                    Material(color: Colors.transparent, child: menuChild))
+              ],
+            ),
+          );
+          return Listener(
+            behavior: widget.enablePassEvent
+                ? HitTestBehavior.translucent
+                : HitTestBehavior.opaque,
+            onPointerDown: (PointerDownEvent event) {
+              Offset offset = event.localPosition;
+              // If tap position in menu
+              if (_menuStates != null) {
+                for (var state in _menuStates!) {
+                  if (state._layoutRect
+                      ?.contains(Offset(offset.dx, offset.dy)) ??
+                      false) return;
+                }
+              }
+              _controller.hideMenu();
+              // When [enablePassEvent] works and we tap the [child] to [hideMenu],
+              // but the passed event would trigger [showMenu] again.
+              // So, we use time threshold to solve this bug.
+              _canResponse = false;
+              Future.delayed(const Duration(milliseconds: 300))
+                  .then((_) => _canResponse = true);
+            },
+            child: widget.barrierColor == Colors.transparent
+                ? menu
+                : ColoredBox(color: widget.barrierColor, child: menu),
+          );
+        },
+      );
+      if (_menuStates == null) {
+        _menuStates = [this];
+      } else {
+        _menuStates!.add(this);
+      }
+      Overlay.of(context, rootOverlay: widget.rootOverlay ?? true)
+          .insert(_overlayEntry!, below: widget.below);
+      widget.onShow?.call();
+    }
+  }
+
+  void _hideMenu() {
+    if (_overlayEntry == null) return;
+    if (_menuStates!.length > 1) {
+      _menuStates!.remove(this);
+    } else {
+      _menuStates = null;
+    }
+    _overlayEntry!.remove();
+    _overlayEntry = null;
+    widget.onHide?.call();
   }
 
   @override
@@ -191,14 +214,16 @@ class CustomMenuState extends State<CustomMenu> {
   Widget build(BuildContext context) {
     Widget child = GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: widget.enablePress ? widget.onTap ?? onTap : null,
+      onTap: widget.enablePress
+          ? (widget.onTap != null ? () => widget.onTap!(_controller) : onTap)
+          : null,
       onLongPress: widget.enableLongPress ? onTap : null,
       onSecondaryTapUp: widget.enablePointer
           ? (TapUpDetails details) => _cachePointer = details.globalPosition
           : null,
       onSecondaryTap: widget.enablePointer
           ? () {
-              if (_canResponse) _controller.showMenu(_cachePointer);
+        if (_canResponse) _controller.toggleMenu(_cachePointer);
             }
           : null,
       child: widget.child,
@@ -208,21 +233,15 @@ class CustomMenuState extends State<CustomMenu> {
     } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
       child = MouseRegion(cursor: SystemMouseCursors.click, child: child);
     }
-    if (Platform.isIOS) {
-      return child;
+    if (Platform.isAndroid) {
+      return PopScope(onPopInvoked: (_) => _hideMenu(), child: child);
     } else {
-      return WillPopScope(
-        onWillPop: () {
-          _hideMenu();
-          return Future.value(true);
-        },
-        child: child,
-      );
+      return child;
     }
   }
 
   void onTap() {
-    if (_canResponse) _controller.showMenu();
+    if (_canResponse) _controller.toggleMenu();
   }
 }
 
@@ -232,12 +251,14 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
     required this.anchorSize,
     required this.anchorOffset,
     required this.targetOffset,
+    required this.onLayoutChange,
   });
 
   final MenuPosition position;
   final Size anchorSize;
   final Offset anchorOffset;
   final Offset? targetOffset;
+  final void Function(Rect rect) onLayoutChange;
 
   @override
   void performLayout(Size size) {
@@ -334,13 +355,12 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
     }
 
     positionChild(0, contentOffset);
-
-    _menuRect = Rect.fromLTWH(
+    onLayoutChange(Rect.fromLTWH(
       contentOffset.dx,
       contentOffset.dy,
       contentSize.width,
       contentSize.height,
-    );
+    ));
   }
 
   @override

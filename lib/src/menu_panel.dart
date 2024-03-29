@@ -90,7 +90,7 @@ class MenuPanel extends StatefulWidget {
   final EdgeInsetsGeometry listPadding;
   final AlignmentGeometry itemAlignment;
   final BorderRadiusGeometry? borderRadius;
-  final VoidCallback? onTap;
+  final void Function(CustomMenuController controller)? onTap;
   final bool enablePress;
   final bool enableLongPress;
   final bool enablePointer;
