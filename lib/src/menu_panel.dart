@@ -63,7 +63,7 @@ class MenuPanel extends StatefulWidget {
     this.enablePress = true,
     this.enableLongPress = false,
     this.enablePointer = false,
-    this.enablePassEvent = true,
+    this.enablePassEvent = false,
     this.style,
     this.below,
     this.onShow,

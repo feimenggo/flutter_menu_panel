@@ -53,7 +53,7 @@ class CustomMenu extends StatefulWidget {
     this.barrierColor = Colors.transparent,
     this.position = MenuPosition.bottomAlignLeft,
     this.onMenuChange,
-    this.enablePassEvent = true,
+    this.enablePassEvent = false,
     this.below,
     this.onTap,
     this.enablePress = true,
