@@ -126,21 +126,14 @@ class CustomMenuState extends State<CustomMenu> {
               minWidth: 0,
               maxWidth: parentBox.size.width,
             ),
-            child: CustomMultiChildLayout(
+            child: CustomSingleChildLayout(
               delegate: _MenuLayoutDelegate(
                   position: widget.position,
                   anchorSize: childBox.size,
                   anchorOffset: childBox.localToGlobal(widget.offset),
                   targetOffset: globalPosition,
-                  onLayoutChange: (Rect rect) {
-                    _layoutRect = rect;
-                  }),
-              children: <Widget>[
-                LayoutId(
-                  id: 0,
-                  child: Material(color: Colors.transparent, child: menuChild),
-                )
-              ],
+                  onLayoutChange: (Rect rect) => _layoutRect = rect),
+              child: Material(color: Colors.transparent, child: menuChild),
             ),
           );
           return Listener(
@@ -242,7 +235,7 @@ class CustomMenuState extends State<CustomMenu> {
   }
 }
 
-class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
+class _MenuLayoutDelegate extends SingleChildLayoutDelegate {
   _MenuLayoutDelegate({
     required this.position,
     required this.anchorSize,
@@ -258,8 +251,12 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
   final void Function(Rect rect) onLayoutChange;
 
   @override
-  void performLayout(Size size) {
-    Size contentSize = layoutChild(0, BoxConstraints.loose(size));
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    return BoxConstraints.loose(constraints.smallest);
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
     Offset contentOffset;
     if (targetOffset != null) {
       contentOffset = targetOffset!;
@@ -272,37 +269,37 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
       switch (position) {
         case MenuPosition.topLeft:
           contentOffset = Offset(
-            anchorLeftX - contentSize.width,
-            anchorTopY - contentSize.height,
+            anchorLeftX - childSize.width,
+            anchorTopY - childSize.height,
           );
           break;
         case MenuPosition.topAlignLeft:
           contentOffset = Offset(
             anchorLeftX,
-            anchorTopY - contentSize.height,
+            anchorTopY - childSize.height,
           );
           break;
         case MenuPosition.topCenter:
           contentOffset = Offset(
-            anchorCenterX - contentSize.width / 2,
-            anchorTopY - contentSize.height,
+            anchorCenterX - childSize.width / 2,
+            anchorTopY - childSize.height,
           );
           break;
         case MenuPosition.topRight:
           contentOffset = Offset(
             anchorRightX,
-            anchorTopY - contentSize.height,
+            anchorTopY - childSize.height,
           );
           break;
         case MenuPosition.topAlignRight:
           contentOffset = Offset(
-            anchorRightX - contentSize.width,
-            anchorTopY - contentSize.height,
+            anchorRightX - childSize.width,
+            anchorTopY - childSize.height,
           );
           break;
         case MenuPosition.bottomLeft:
           contentOffset = Offset(
-            anchorLeftX - contentSize.width,
+            anchorLeftX - childSize.width,
             anchorBottomY,
           );
           break;
@@ -314,7 +311,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
           break;
         case MenuPosition.bottomCenter:
           contentOffset = Offset(
-            anchorCenterX - contentSize.width / 2,
+            anchorCenterX - childSize.width / 2,
             anchorBottomY,
           );
           break;
@@ -326,7 +323,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
           break;
         case MenuPosition.bottomAlignRight:
           contentOffset = Offset(
-            anchorRightX - contentSize.width,
+            anchorRightX - childSize.width,
             anchorBottomY,
           );
           break;
@@ -336,7 +333,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
     if (contentOffset.dy < 0) {
       contentOffset = Offset(contentOffset.dx, 0);
     } else {
-      double bottomOver = size.height - (contentOffset.dy + contentSize.height);
+      double bottomOver = size.height - (contentOffset.dy + childSize.height);
       if (bottomOver < 0) {
         contentOffset = Offset(contentOffset.dx, contentOffset.dy + bottomOver);
       }
@@ -345,21 +342,20 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
     if (contentOffset.dx < 0) {
       contentOffset = Offset(0, contentOffset.dy);
     } else {
-      double rightOver = size.width - (contentOffset.dx + contentSize.width);
+      double rightOver = size.width - (contentOffset.dx + childSize.width);
       if (rightOver < 0) {
         contentOffset = Offset(contentOffset.dx + rightOver, contentOffset.dy);
       }
     }
-
-    positionChild(0, contentOffset);
     onLayoutChange(Rect.fromLTWH(
       contentOffset.dx,
       contentOffset.dy,
-      contentSize.width,
-      contentSize.height,
+      childSize.width,
+      childSize.height,
     ));
+    return contentOffset;
   }
 
   @override
-  bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) => false;
+  bool shouldRelayout(covariant SingleChildLayoutDelegate oldDelegate) => false;
 }

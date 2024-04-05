@@ -110,10 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       .values[positionIndex % MenuPosition.values.length],
                   builder: buildItems,
                   child: Content(
-                    MenuPosition
-                        .values[positionIndex % MenuPosition.values.length]
-                        .name,
-                    width: 150,
+                    '列表：${MenuPosition.values[positionIndex % MenuPosition.values.length]}',
+                    width: 300,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -124,10 +122,24 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 128,
                   builder: buildList,
                   child: Content(
-                    MenuPosition
-                        .values[positionIndex % MenuPosition.values.length]
-                        .name,
-                    width: 150,
+                    '固定高度列表：${MenuPosition.values[positionIndex % MenuPosition.values.length]}',
+                    width: 300,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                CustomMenu(
+                  position: MenuPosition
+                      .values[positionIndex % MenuPosition.values.length],
+                  menuBuilder: (CustomMenuController controller) {
+                    return Container(
+                      width: 100,
+                      color: Colors.red[100],
+                      child: const Text('我是自定义Widget'),
+                    );
+                  },
+                  child: Content(
+                    '自定义：${MenuPosition.values[positionIndex % MenuPosition.values.length].name}',
+                    width: 300,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -198,6 +210,7 @@ class Content extends StatelessWidget {
       child: Center(
         child: Text(
           name,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onPrimary,
             fontWeight: FontWeight.bold,
