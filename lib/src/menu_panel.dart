@@ -105,24 +105,22 @@ class MenuPanel extends StatefulWidget {
   final MouseCursor? cursor;
 
   @override
-  State<MenuPanel> createState() => _MenuPanelState();
+  State<MenuPanel> createState() => MenuPanelState();
 }
 
-class _MenuPanelState extends State<MenuPanel> {
-  late final controller = widget.controller ?? CustomMenuController();
+class MenuPanelState extends State<MenuPanel> {
   ScrollController? scrollController;
 
   @override
   void dispose() {
     super.dispose();
-    if (widget.controller == null) controller.dispose();
     scrollController?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return CustomMenu(
-      controller: controller,
+      controller: widget.controller,
       offset: widget.offset,
       position: widget.position,
       barrierColor: widget.barrierColor,
@@ -140,7 +138,7 @@ class _MenuPanelState extends State<MenuPanel> {
     );
   }
 
-  Future<Widget> buildMenu() async {
+  Future<Widget> buildMenu(CustomMenuController controller) async {
     final menuData = await widget.builder(context);
     List<TextMenuItem> items = menuData.items;
     double? itemExtent = widget.itemExtent ?? widget.itemHeight;

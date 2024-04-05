@@ -66,7 +66,7 @@ class CustomMenu extends StatefulWidget {
   });
 
   final Widget child;
-  final FutureOr<Widget> Function() menuBuilder;
+  final FutureOr<Widget> Function(CustomMenuController controller) menuBuilder;
   final CustomMenuController? controller;
   final Offset offset;
   final Color barrierColor;
@@ -112,17 +112,14 @@ class CustomMenuState extends State<CustomMenu> {
 
   Future<void> _showMenu(Offset? globalPosition) async {
     if (_overlayEntry != null) return;
-    final menuChild = await widget.menuBuilder();
+    final menuChild = await widget.menuBuilder(_controller);
     if (mounted) {
       _overlayEntry = OverlayEntry(
         builder: (ctx) {
           MediaQuery.sizeOf(ctx); // 监听窗口尺寸变化
           final childBox = context.findRenderObject() as RenderBox;
           final parentBox =
-          Overlay
-              .of(context)
-              .context
-              .findRenderObject() as RenderBox;
+              Overlay.of(context).context.findRenderObject() as RenderBox;
           // print('pSize:${parentBox.size} cSize:${childBox.size}');
           Widget menu = Container(
             constraints: BoxConstraints(
@@ -140,9 +137,9 @@ class CustomMenuState extends State<CustomMenu> {
                   }),
               children: <Widget>[
                 LayoutId(
-                    id: 0,
-                    child:
-                    Material(color: Colors.transparent, child: menuChild))
+                  id: 0,
+                  child: Material(color: Colors.transparent, child: menuChild),
+                )
               ],
             ),
           );
@@ -156,7 +153,7 @@ class CustomMenuState extends State<CustomMenu> {
               if (_menuStates != null) {
                 for (var state in _menuStates!) {
                   if (state._layoutRect
-                      ?.contains(Offset(offset.dx, offset.dy)) ??
+                          ?.contains(Offset(offset.dx, offset.dy)) ??
                       false) return;
                 }
               }
@@ -223,7 +220,7 @@ class CustomMenuState extends State<CustomMenu> {
           : null,
       onSecondaryTap: widget.enablePointer
           ? () {
-        if (_canResponse) _controller.toggleMenu(_cachePointer);
+              if (_canResponse) _controller.toggleMenu(_cachePointer);
             }
           : null,
       child: widget.child,
