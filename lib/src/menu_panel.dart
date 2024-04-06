@@ -65,6 +65,7 @@ class MenuPanel extends StatefulWidget {
     this.enablePointer = false,
     this.enablePassEvent = false,
     this.style,
+    this.overflow = TextOverflow.ellipsis,
     this.below,
     this.onShow,
     this.onHide,
@@ -96,6 +97,7 @@ class MenuPanel extends StatefulWidget {
   final bool enablePointer;
   final bool enablePassEvent;
   final TextStyle? style;
+  final TextOverflow? overflow;
   final OverlayEntry? below;
   final VoidCallback? onShow;
   final VoidCallback? onHide;
@@ -161,6 +163,7 @@ class MenuPanelState extends State<MenuPanel> {
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
+            overflow: widget.overflow,
           ),
         );
       }
