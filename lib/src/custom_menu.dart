@@ -32,6 +32,13 @@ class CustomMenuController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void hideAllMenu() {
+    if (_menuStates == null) return;
+    for (var menu in _menuStates!.reversed.toList()) {
+      if (menu.mounted) menu._controller.hideMenu();
+    }
+  }
+
   void toggleMenu([Offset? globalPosition]) {
     if (menuIsShowing) {
       hideMenu();
