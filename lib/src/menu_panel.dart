@@ -75,14 +75,14 @@ class MenuPanel extends StatefulWidget {
 
   final CustomMenuController? controller;
   final Widget child;
-  final double width;
+  final double? width;
   final double? height;
   final double? maxHeight;
   final Offset offset;
   final Color? splashColor;
   final Color barrierColor;
   final Color backgroundColor;
-  final BoxShadow backgroundShadow;
+  final BoxShadow? backgroundShadow;
   final MenuPosition position;
   final MenuDataBuilder builder;
   final double? itemExtent;
@@ -140,7 +140,7 @@ class MenuPanelState extends State<MenuPanel> {
     );
   }
 
-  Future<Widget> buildMenu(CustomMenuController controller) async {
+  Future<Widget> buildMenu(CustomMenuController controller, Size size) async {
     final menuData = await widget.builder(context);
     List<TextMenuItem> items = menuData.items;
     double? itemExtent = widget.itemExtent ?? widget.itemHeight;
@@ -191,12 +191,14 @@ class MenuPanelState extends State<MenuPanel> {
       scrollController = ScrollController();
     }
     return Container(
-      width: widget.width,
+      width: widget.width ?? size.width,
       height: widget.height,
       constraints: widget.maxHeight != null
           ? BoxConstraints(maxHeight: widget.maxHeight!)
           : null,
-      decoration: BoxDecoration(boxShadow: [widget.backgroundShadow]),
+      decoration: widget.backgroundShadow == null
+          ? null
+          : BoxDecoration(boxShadow: [widget.backgroundShadow!]),
       child: Material(
         color: widget.backgroundColor,
         borderRadius: widget.borderRadius,

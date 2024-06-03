@@ -130,9 +130,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 CustomMenu(
                   position: MenuPosition
                       .values[positionIndex % MenuPosition.values.length],
-                  menuBuilder: (CustomMenuController controller) {
+                  menuBuilder: (CustomMenuController controller, Size size) {
                     return Container(
-                      width: 100,
+                      width: size.width,
                       color: Colors.red[100],
                       child: const Text('我是自定义Widget'),
                     );

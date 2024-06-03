@@ -73,7 +73,8 @@ class CustomMenu extends StatefulWidget {
   });
 
   final Widget child;
-  final FutureOr<Widget> Function(CustomMenuController controller) menuBuilder;
+  final FutureOr<Widget> Function(CustomMenuController controller, Size size)
+      menuBuilder;
   final CustomMenuController? controller;
   final Offset offset;
   final Color barrierColor;
@@ -119,7 +120,8 @@ class CustomMenuState extends State<CustomMenu> {
 
   Future<void> _showMenu(Offset? globalPosition) async {
     if (_overlayEntry != null) return;
-    final menuChild = await widget.menuBuilder(_controller);
+    final childBox = context.findRenderObject() as RenderBox;
+    final menuChild = await widget.menuBuilder(_controller, childBox.size);
     if (mounted) {
       _overlayEntry = OverlayEntry(
         builder: (ctx) {
