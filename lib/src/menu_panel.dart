@@ -150,20 +150,25 @@ class MenuPanelState extends State<MenuPanel> {
         if (widget.itemExtent == null) itemExtent = null;
         child = item.builder(context, controller);
       } else {
-        child = Container(
-          height: widget.itemHeight,
-          padding: widget.itemPadding,
-          alignment: widget.itemAlignment,
-          child: Text(
-            item.name,
-            style: item.style ??
-                widget.style ??
-                const TextStyle(
-                  color: Color(0xFF242A39),
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                ),
-            overflow: widget.overflow,
+        child = IntrinsicWidth(
+          child: Container(
+            padding: widget.itemPadding,
+            alignment: widget.itemAlignment,
+            constraints: BoxConstraints(
+              minWidth: widget.width ?? size.width,
+              minHeight: widget.itemHeight,
+            ),
+            child: Text(
+              item.name,
+              style: item.style ??
+                  widget.style ??
+                  const TextStyle(
+                    color: Color(0xFF242A39),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+              overflow: widget.overflow,
+            ),
           ),
         );
       }
@@ -191,24 +196,23 @@ class MenuPanelState extends State<MenuPanel> {
       scrollController = ScrollController();
     }
     return Container(
-      width: widget.width ?? size.width,
       height: widget.height,
-      constraints: widget.maxHeight != null
-          ? BoxConstraints(maxHeight: widget.maxHeight!)
-          : null,
       decoration: widget.backgroundShadow == null
           ? null
           : BoxDecoration(boxShadow: [widget.backgroundShadow!]),
+      constraints: widget.maxHeight != null
+          ? BoxConstraints(maxHeight: widget.maxHeight!)
+          : null,
       child: Material(
         color: widget.backgroundColor,
         borderRadius: widget.borderRadius,
-        child: ListView(
-          primary: false,
-          shrinkWrap: true,
-          itemExtent: itemExtent,
+        child: SingleChildScrollView(
           controller: scrollController,
           padding: widget.listPadding,
-          children: children,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children,
+          ),
         ),
       ),
     );
