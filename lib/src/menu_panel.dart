@@ -21,8 +21,11 @@ class TextMenuItem {
 /// 自定义菜单项
 class CustomMenuItem extends TextMenuItem {
   final MenuWidgetBuilder builder;
+  final bool keepWidth;
 
-  const CustomMenuItem(this.builder, {VoidCallback? onTap}) : super('', onTap);
+  const CustomMenuItem(this.builder,
+      {VoidCallback? onTap, this.keepWidth = true})
+      : super('', onTap);
 }
 
 /// 菜单数据
@@ -149,6 +152,9 @@ class MenuPanelState extends State<MenuPanel> {
       if (item is CustomMenuItem) {
         if (widget.itemExtent == null) itemExtent = null;
         child = item.builder(context, controller);
+        if (item.keepWidth) {
+          child = SizedBox(width: widget.width ?? size.width, child: child);
+        }
       } else {
         child = IntrinsicWidth(
           child: Container(
