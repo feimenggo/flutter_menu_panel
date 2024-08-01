@@ -150,28 +150,27 @@ class MenuPanelState extends State<MenuPanel> {
         if (widget.itemExtent == null) itemExtent = null;
         child = item.builder(context, controller);
       } else {
-        child = IntrinsicWidth(
-          child: Container(
-            padding: widget.itemPadding,
-            alignment: widget.itemAlignment,
-            constraints: BoxConstraints(
-              minWidth: widget.width ?? size.width,
-              minHeight: widget.itemHeight,
-            ),
-            child: Text(
-              item.name,
-              style: item.style ??
-                  widget.style ??
-                  const TextStyle(
-                    color: Color(0xFF242A39),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-              overflow: widget.overflow,
-            ),
+        child = Container(
+          padding: widget.itemPadding,
+          alignment: widget.itemAlignment,
+          constraints: BoxConstraints(
+            minWidth: widget.width ?? size.width,
+            minHeight: widget.itemHeight,
+          ),
+          child: Text(
+            item.name,
+            style: item.style ??
+                widget.style ??
+                const TextStyle(
+                  color: Color(0xFF242A39),
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+            overflow: widget.overflow,
           ),
         );
       }
+      child = IntrinsicWidth(child: child);
       if (item.onTap != null) {
         child = InkWell(
           onTap: () {
