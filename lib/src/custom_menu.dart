@@ -60,12 +60,12 @@ class CustomMenu extends StatefulWidget {
     this.barrierColor = Colors.transparent,
     this.position = MenuPosition.bottomAlignLeft,
     this.onMenuChange,
-    this.enablePassEvent = false,
-    this.below,
     this.onTap,
     this.enablePress = true,
     this.enableLongPress = false,
     this.enablePointer = false,
+    this.enablePassEvent = false,
+    this.below,
     this.onShow,
     this.onHide,
     this.rootOverlay,
@@ -84,12 +84,11 @@ class CustomMenu extends StatefulWidget {
   final bool enablePress;
   final bool enableLongPress;
   final bool enablePointer;
-  final OverlayEntry? below;
 
   /// Pass tap event to the widgets below the mask.
   /// It only works when [barrierColor] is transparent.
   final bool enablePassEvent;
-
+  final OverlayEntry? below;
   final VoidCallback? onShow;
   final VoidCallback? onHide;
   final bool? rootOverlay;
@@ -214,11 +213,15 @@ class CustomMenuState extends State<CustomMenu> {
     Widget child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: widget.enablePress
-          ? (widget.onTap != null ? () => widget.onTap!(_controller) : onTap)
+          ? widget.onTap != null
+              ? () {
+                  if (_canResponse) widget.onTap!(_controller);
+                }
+              : onTap
           : null,
       onLongPress: widget.enableLongPress ? onTap : null,
       onSecondaryTapUp: widget.enablePointer
-          ? (TapUpDetails details) => _cachePointer = details.globalPosition
+          ? (details) => _cachePointer = details.globalPosition
           : null,
       onSecondaryTap: widget.enablePointer
           ? () {

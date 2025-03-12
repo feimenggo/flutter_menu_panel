@@ -135,10 +135,10 @@ class MenuPanelState extends State<MenuPanel> {
       enablePointer: widget.enablePointer,
       enablePassEvent: widget.enablePassEvent,
       below: widget.below,
-      menuBuilder: buildMenu,
       onShow: widget.onShow,
       onHide: widget.onHide,
       rootOverlay: widget.rootOverlay,
+      menuBuilder: buildMenu,
       child: widget.child,
     );
   }
