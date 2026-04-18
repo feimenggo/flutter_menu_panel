@@ -14,6 +14,8 @@ enum MenuPosition {
   bottomCenter,
   bottomRight,
   bottomAlignRight,
+  leftCenter,
+  rightCenter,
 }
 
 class CustomMenuController extends ChangeNotifier {
@@ -73,8 +75,7 @@ class CustomMenu extends StatefulWidget {
   });
 
   final Widget child;
-  final FutureOr<Widget> Function(CustomMenuController controller, Size size)
-      menuBuilder;
+  final FutureOr<Widget> Function(CustomMenuController controller, Size size) menuBuilder;
   final CustomMenuController? controller;
   final Offset offset;
   final Color barrierColor;
@@ -126,8 +127,7 @@ class CustomMenuState extends State<CustomMenu> {
         builder: (ctx) {
           MediaQuery.sizeOf(ctx); // 监听窗口尺寸变化
           final childBox = context.findRenderObject() as RenderBox;
-          final parentBox =
-              Overlay.of(context).context.findRenderObject() as RenderBox;
+          final parentBox = Overlay.of(context).context.findRenderObject() as RenderBox;
           // print('pSize:${parentBox.size} cSize:${childBox.size}');
           Widget menu = Container(
             constraints: BoxConstraints(
@@ -145,17 +145,13 @@ class CustomMenuState extends State<CustomMenu> {
             ),
           );
           return Listener(
-            behavior: widget.enablePassEvent
-                ? HitTestBehavior.translucent
-                : HitTestBehavior.opaque,
+            behavior: widget.enablePassEvent ? HitTestBehavior.translucent : HitTestBehavior.opaque,
             onPointerDown: (PointerDownEvent event) {
               Offset offset = event.localPosition;
               // If tap position in menu
               if (_menuStates != null) {
                 for (var state in _menuStates!) {
-                  if (state._layoutRect
-                          ?.contains(Offset(offset.dx, offset.dy)) ??
-                      false) return;
+                  if (state._layoutRect?.contains(Offset(offset.dx, offset.dy)) ?? false) return;
                 }
               }
               _controller.hideMenu();
@@ -163,8 +159,7 @@ class CustomMenuState extends State<CustomMenu> {
               // but the passed event would trigger [showMenu] again.
               // So, we use time threshold to solve this bug.
               _canResponse = false;
-              Future.delayed(const Duration(milliseconds: 300))
-                  .then((_) => _canResponse = true);
+              Future.delayed(const Duration(milliseconds: 300)).then((_) => _canResponse = true);
             },
             child: widget.barrierColor == Colors.transparent
                 ? menu
@@ -220,9 +215,8 @@ class CustomMenuState extends State<CustomMenu> {
               : onTap
           : null,
       onLongPress: widget.enableLongPress ? onTap : null,
-      onSecondaryTapUp: widget.enablePointer
-          ? (details) => _cachePointer = details.globalPosition
-          : null,
+      onSecondaryTapUp:
+          widget.enablePointer ? (details) => _cachePointer = details.globalPosition : null,
       onSecondaryTap: widget.enablePointer
           ? () {
               if (_canResponse) _controller.toggleMenu(_cachePointer);
@@ -278,6 +272,7 @@ class _MenuLayoutDelegate extends SingleChildLayoutDelegate {
       double anchorCenterX = anchorOffset.dx + anchorSize.width / 2;
       double anchorTopY = anchorOffset.dy;
       double anchorBottomY = anchorTopY + anchorSize.height;
+      double anchorCenterY = anchorOffset.dy + anchorSize.height / 2;
       switch (position) {
         case MenuPosition.topLeft:
           contentOffset = Offset(
@@ -337,6 +332,18 @@ class _MenuLayoutDelegate extends SingleChildLayoutDelegate {
           contentOffset = Offset(
             anchorRightX - childSize.width,
             anchorBottomY,
+          );
+          break;
+        case MenuPosition.leftCenter:
+          contentOffset = Offset(
+            anchorLeftX - childSize.width,
+            anchorCenterY - childSize.height / 2,
+          );
+          break;
+        case MenuPosition.rightCenter:
+          contentOffset = Offset(
+            anchorRightX,
+            anchorCenterY - childSize.height / 2,
           );
           break;
       }

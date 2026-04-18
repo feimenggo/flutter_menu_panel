@@ -106,8 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 MenuPanel(
                   enablePointer: true,
-                  position: MenuPosition
-                      .values[positionIndex % MenuPosition.values.length],
+                  position: MenuPosition.values[positionIndex % MenuPosition.values.length],
                   builder: buildItems,
                   child: Content(
                     '列表：${MenuPosition.values[positionIndex % MenuPosition.values.length]}',
@@ -117,8 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(height: 12),
                 MenuPanel(
                   enablePointer: true,
-                  position: MenuPosition
-                      .values[positionIndex % MenuPosition.values.length],
+                  position: MenuPosition.values[positionIndex % MenuPosition.values.length],
                   height: 128,
                   builder: buildList,
                   child: Content(
@@ -128,8 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 12),
                 CustomMenu(
-                  position: MenuPosition
-                      .values[positionIndex % MenuPosition.values.length],
+                  position: MenuPosition.values[positionIndex % MenuPosition.values.length],
                   menuBuilder: (CustomMenuController controller, Size size) {
                     return Container(
                       width: size.width,
@@ -144,8 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(
-                    onPressed: () => setState(() => positionIndex++),
-                    child: const Text('切换位置')),
+                    onPressed: () => setState(() => positionIndex++), child: const Text('切换位置')),
               ],
             ),
           ],

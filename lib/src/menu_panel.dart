@@ -6,8 +6,7 @@ import 'custom_menu.dart';
 
 const kItemHeight = 40.0;
 
-typedef MenuWidgetBuilder = Widget Function(
-    BuildContext context, CustomMenuController controller);
+typedef MenuWidgetBuilder = Widget Function(BuildContext context, CustomMenuController controller);
 
 /// 文本菜单项
 class TextMenuItem {
@@ -23,8 +22,7 @@ class CustomMenuItem extends TextMenuItem {
   final MenuWidgetBuilder builder;
   final bool keepWidth;
 
-  const CustomMenuItem(this.builder,
-      {VoidCallback? onTap, this.keepWidth = true})
+  const CustomMenuItem(this.builder, {VoidCallback? onTap, this.keepWidth = true})
       : super('', onTap);
 }
 
@@ -59,8 +57,8 @@ class MenuPanel extends StatefulWidget {
     this.splashColor,
     this.barrierColor = Colors.transparent,
     this.backgroundColor = Colors.white,
-    this.backgroundShadow = const BoxShadow(
-        blurRadius: 24, offset: Offset(0, 4), color: Color(0x33000000)),
+    this.backgroundShadow =
+        const BoxShadow(blurRadius: 24, offset: Offset(0, 4), color: Color(0x33000000)),
     this.borderRadius = const BorderRadius.all(Radius.circular(6)),
     this.onTap,
     this.enablePress = true,
@@ -192,11 +190,10 @@ class MenuPanelState extends State<MenuPanel> {
     }).toList(growable: false);
     // 初始滚动定位
     if (menuData.initialIndex != null && menuData.initialIndex! > 0) {
-      assert(
-          itemExtent != null, '当CustomMenuItem使用initialIndex时，需要设置itemExtent');
+      assert(itemExtent != null, '当CustomMenuItem使用initialIndex时，需要设置itemExtent');
       scrollController?.dispose();
-      scrollController = ScrollController(
-          initialScrollOffset: menuData.initialIndex! * itemExtent!);
+      scrollController =
+          ScrollController(initialScrollOffset: menuData.initialIndex! * itemExtent!);
     } else {
       scrollController?.dispose();
       scrollController = ScrollController();
@@ -206,9 +203,7 @@ class MenuPanelState extends State<MenuPanel> {
       decoration: widget.backgroundShadow == null
           ? null
           : BoxDecoration(boxShadow: [widget.backgroundShadow!]),
-      constraints: widget.maxHeight != null
-          ? BoxConstraints(maxHeight: widget.maxHeight!)
-          : null,
+      constraints: widget.maxHeight != null ? BoxConstraints(maxHeight: widget.maxHeight!) : null,
       child: Material(
         color: widget.backgroundColor,
         borderRadius: widget.borderRadius,
