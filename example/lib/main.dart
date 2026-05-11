@@ -162,9 +162,62 @@ class _MyHomePageState extends State<MyHomePage> {
       TextMenuItem('书籍预览', () {
         if (kDebugMode) print('点击：书籍预览');
       }),
-      TextMenuItem('导出书籍', () {
-        if (kDebugMode) print('点击：导出书籍');
-      }),
+      // 多级菜单：排序方式
+      TextMenuItem(
+        '排序方式',
+        null,
+        children: [
+          TextMenuItem('按创建时间', () {
+            if (kDebugMode) print('点击：按创建时间');
+          }),
+          TextMenuItem('按修改时间', () {
+            if (kDebugMode) print('点击：按修改时间');
+          }),
+          TextMenuItem('按文件名称', () {
+            if (kDebugMode) print('点击：按文件名称');
+          }),
+          TextMenuItem('按文件大小', () {
+            if (kDebugMode) print('点击：按文件大小');
+          }),
+          TextMenuItem('按文件类型', () {
+            if (kDebugMode) print('点击：按文件类型');
+          }),
+          TextMenuItem('由新到旧', () {
+            if (kDebugMode) print('点击：由新到旧');
+          }),
+          TextMenuItem('由旧到新', () {
+            if (kDebugMode) print('点击：由旧到新');
+          }),
+        ],
+      ),
+      // 多级菜单：导出，演示三级
+      TextMenuItem(
+        '导出书籍',
+        null,
+        children: [
+          TextMenuItem('导出为 TXT', () {
+            if (kDebugMode) print('点击：导出为 TXT');
+          }),
+          TextMenuItem('导出为 EPUB', () {
+            if (kDebugMode) print('点击：导出为 EPUB');
+          }),
+          TextMenuItem(
+            '更多格式',
+            null,
+            children: [
+              TextMenuItem('Markdown', () {
+                if (kDebugMode) print('点击：Markdown');
+              }),
+              TextMenuItem('PDF', () {
+                if (kDebugMode) print('点击：PDF');
+              }),
+              TextMenuItem('Word', () {
+                if (kDebugMode) print('点击：Word');
+              }),
+            ],
+          ),
+        ],
+      ),
       TextMenuItem('导入章节', () {
         if (kDebugMode) print('点击：导入章节');
       }),
