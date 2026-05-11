@@ -8,8 +8,7 @@ import 'custom_menu.dart';
 
 const kItemHeight = 40.0;
 
-typedef MenuWidgetBuilder = Widget Function(
-    BuildContext context, CustomMenuController controller);
+typedef MenuWidgetBuilder = Widget Function(BuildContext context, CustomMenuController controller);
 
 /// 文本菜单项
 class TextMenuItem {
@@ -40,8 +39,7 @@ class CustomMenuItem extends TextMenuItem {
   final MenuWidgetBuilder builder;
   final bool keepWidth;
 
-  const CustomMenuItem(this.builder,
-      {VoidCallback? onTap, this.keepWidth = true})
+  const CustomMenuItem(this.builder, {VoidCallback? onTap, this.keepWidth = true})
       : super('', onTap);
 }
 
@@ -76,8 +74,8 @@ class MenuPanel extends StatefulWidget {
     this.splashColor,
     this.barrierColor = Colors.transparent,
     this.backgroundColor = Colors.white,
-    this.backgroundShadow = const BoxShadow(
-        blurRadius: 24, offset: Offset(0, 4), color: Color(0x33000000)),
+    this.backgroundShadow =
+        const BoxShadow(blurRadius: 24, offset: Offset(0, 4), color: Color(0x33000000)),
     this.borderRadius = const BorderRadius.all(Radius.circular(6)),
     this.onTap,
     this.enablePress = true,
@@ -176,10 +174,10 @@ class MenuPanelState extends State<MenuPanel> {
       enablePointer: widget.enablePointer,
       enablePassEvent: widget.enablePassEvent,
       below: widget.below,
-      menuBuilder: buildMenu,
       onShow: widget.onShow,
       onHide: widget.onHide,
       rootOverlay: widget.rootOverlay,
+      menuBuilder: buildMenu,
       cursor: widget.cursor,
       child: widget.child,
     );
@@ -294,8 +292,7 @@ class MenuPanelState extends State<MenuPanel> {
 
     // 初始滚动定位
     if (menuData.initialIndex != null && menuData.initialIndex! > 0) {
-      assert(
-          itemExtent != null, '当CustomMenuItem使用initialIndex时，需要设置itemExtent');
+      assert(itemExtent != null, '当CustomMenuItem使用initialIndex时，需要设置itemExtent');
       scrollController?.dispose();
       scrollController = ScrollController(
           initialScrollOffset: menuData.initialIndex! * itemExtent!);

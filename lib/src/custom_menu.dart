@@ -14,6 +14,8 @@ enum MenuPosition {
   bottomCenter,
   bottomRight,
   bottomAlignRight,
+  leftCenter,
+  rightCenter,
 
   /// 位于锚点右侧，与锚点顶部对齐（多级菜单常用）
   rightTop,
@@ -85,12 +87,12 @@ class CustomMenu extends StatefulWidget {
     this.barrierColor = Colors.transparent,
     this.position = MenuPosition.bottomAlignLeft,
     this.onMenuChange,
-    this.enablePassEvent = false,
-    this.below,
     this.onTap,
     this.enablePress = true,
     this.enableLongPress = false,
     this.enablePointer = false,
+    this.enablePassEvent = false,
+    this.below,
     this.onShow,
     this.onHide,
     this.rootOverlay,
@@ -103,8 +105,7 @@ class CustomMenu extends StatefulWidget {
   });
 
   final Widget child;
-  final FutureOr<Widget> Function(CustomMenuController controller, Size size)
-      menuBuilder;
+  final FutureOr<Widget> Function(CustomMenuController controller, Size size) menuBuilder;
   final CustomMenuController? controller;
   final Offset offset;
   final Color barrierColor;
@@ -114,12 +115,11 @@ class CustomMenu extends StatefulWidget {
   final bool enablePress;
   final bool enableLongPress;
   final bool enablePointer;
-  final OverlayEntry? below;
 
   /// Pass tap event to the widgets below the mask.
   /// It only works when [barrierColor] is transparent.
   final bool enablePassEvent;
-
+  final OverlayEntry? below;
   final VoidCallback? onShow;
   final VoidCallback? onHide;
   final bool? rootOverlay;
@@ -251,8 +251,7 @@ class CustomMenuState extends State<CustomMenu> {
         builder: (ctx) {
           MediaQuery.sizeOf(ctx); // 监听窗口尺寸变化
           final childBox = context.findRenderObject() as RenderBox;
-          final parentBox =
-              Overlay.of(context).context.findRenderObject() as RenderBox;
+          final parentBox = Overlay.of(context).context.findRenderObject() as RenderBox;
           // print('pSize:${parentBox.size} cSize:${childBox.size}');
           Widget menuContent =
               Material(color: Colors.transparent, child: menuChild);
@@ -410,12 +409,15 @@ class CustomMenuState extends State<CustomMenu> {
     Widget child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: widget.enablePress
-          ? (widget.onTap != null ? () => widget.onTap!(_controller) : onTap)
+          ? widget.onTap != null
+              ? () {
+                  if (_canResponse) widget.onTap!(_controller);
+                }
+              : onTap
           : null,
       onLongPress: widget.enableLongPress ? onTap : null,
-      onSecondaryTapUp: widget.enablePointer
-          ? (TapUpDetails details) => _cachePointer = details.globalPosition
-          : null,
+      onSecondaryTapUp:
+          widget.enablePointer ? (details) => _cachePointer = details.globalPosition : null,
       onSecondaryTap: widget.enablePointer
           ? () {
               if (_canResponse) _controller.toggleMenu(_cachePointer);
@@ -490,6 +492,7 @@ class _MenuLayoutDelegate extends SingleChildLayoutDelegate {
       double anchorCenterX = anchorOffset.dx + anchorSize.width / 2;
       double anchorTopY = anchorOffset.dy;
       double anchorBottomY = anchorTopY + anchorSize.height;
+      double anchorCenterY = anchorOffset.dy + anchorSize.height / 2;
       // 智能翻转：right 不下时改为 left；left 不下时改为 right
       MenuPosition effectivePosition = position;
       if (flipIfOverflow) {
@@ -563,6 +566,18 @@ class _MenuLayoutDelegate extends SingleChildLayoutDelegate {
           contentOffset = Offset(
             anchorRightX - childSize.width,
             anchorBottomY,
+          );
+          break;
+        case MenuPosition.leftCenter:
+          contentOffset = Offset(
+            anchorLeftX - childSize.width,
+            anchorCenterY - childSize.height / 2,
+          );
+          break;
+        case MenuPosition.rightCenter:
+          contentOffset = Offset(
+            anchorRightX,
+            anchorCenterY - childSize.height / 2,
           );
           break;
         case MenuPosition.rightTop:
