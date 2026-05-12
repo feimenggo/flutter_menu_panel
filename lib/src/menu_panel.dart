@@ -88,7 +88,7 @@ class MenuPanel extends StatefulWidget {
     this.rootOverlay,
     this.cursor = SystemMouseCursors.click,
     this.subMenuOffset = Offset.zero,
-    this.subMenuIndicator,
+    this.subMenuTrailing,
     this.subMenuPosition = MenuPosition.rightTop,
     this.subMenuFlipIfOverflow = true,
     this.subMenuHoverDelay = const Duration(milliseconds: 150),
@@ -132,7 +132,7 @@ class MenuPanel extends StatefulWidget {
   final Offset subMenuOffset;
 
   /// 子菜单指示图标（默认右箭头）。
-  final Widget? subMenuIndicator;
+  final Widget? subMenuTrailing;
 
   /// 子菜单首选弹出位置。默认为锚点右侧。
   final MenuPosition subMenuPosition;
@@ -234,11 +234,11 @@ class MenuPanelState extends State<MenuPanel> {
       if (item.hasChildren) {
         // 文本 + 尾部箭头
         rowContent = Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Flexible(child: textWidget),
             item.trailing ??
-                widget.subMenuIndicator ??
+                widget.subMenuTrailing ??
                 const Padding(
                     padding: EdgeInsets.only(left: 8),
                     child: Icon(Icons.chevron_right, size: 18, color: Color(0xFF8A8F99))),

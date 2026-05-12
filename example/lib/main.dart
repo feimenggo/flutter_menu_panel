@@ -108,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   enablePointer: true,
                   position: MenuPosition.values[positionIndex % MenuPosition.values.length],
                   builder: buildItems,
+                  width: 200,
                   child: Content(
                     '列表：${MenuPosition.values[positionIndex % MenuPosition.values.length]}',
                     width: 300,
