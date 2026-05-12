@@ -204,8 +204,7 @@ class MenuPanelState extends State<MenuPanel> {
         if (widget.itemExtent == null) itemExtent = null;
         child = item.builder(context, controller);
         if (item.keepWidth) {
-          child = SizedBox(
-              width: widget.width ?? anchorSize.width, child: child);
+          child = SizedBox(width: widget.width ?? anchorSize.width, child: child);
         } else {
           // 由于外层 Column 使用 CrossAxisAlignment.stretch，
           // 这里用 Align 让自定义 child 维持其原本的尺寸而不被强制拉伸。
@@ -229,11 +228,7 @@ class MenuPanelState extends State<MenuPanel> {
         item.name,
         style: item.style ??
             widget.style ??
-            const TextStyle(
-              color: Color(0xFF242A39),
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-            ),
+            const TextStyle(color: Color(0xFF242A39), fontSize: 13, fontWeight: FontWeight.bold),
         overflow: widget.overflow,
       );
 
@@ -247,11 +242,7 @@ class MenuPanelState extends State<MenuPanel> {
             const SizedBox(width: 8),
             item.trailing ??
                 widget.subMenuIndicator ??
-                const Icon(
-                  Icons.chevron_right,
-                  size: 18,
-                  color: Color(0xFF8A8F99),
-                ),
+                const Icon(Icons.chevron_right, size: 18, color: Color(0xFF8A8F99)),
           ],
         );
       } else {
@@ -295,7 +286,8 @@ class MenuPanelState extends State<MenuPanel> {
       assert(itemExtent != null, '当CustomMenuItem使用initialIndex时，需要设置itemExtent');
       scrollController?.dispose();
       scrollController = ScrollController(
-          initialScrollOffset: menuData.initialIndex! * itemExtent!);
+        initialScrollOffset: menuData.initialIndex! * itemExtent!,
+      );
     } else if (isRoot) {
       scrollController?.dispose();
       scrollController = ScrollController();
@@ -351,9 +343,7 @@ class MenuPanelState extends State<MenuPanel> {
     // 用 Stack 把阴影层与内容层叠在一起：阴影层在下，内容层在上。
     final Widget panelBody = Container(
       height: widget.height,
-      constraints: widget.maxHeight != null
-          ? BoxConstraints(maxHeight: widget.maxHeight!)
-          : null,
+      constraints: widget.maxHeight != null ? BoxConstraints(maxHeight: widget.maxHeight!) : null,
       child: shadowLayer == null
           ? contentLayer
           : Stack(
@@ -530,18 +520,13 @@ class _SubMenuShadowMaskState extends State<_SubMenuShadowMask> {
     final parentRect = parent?.layoutRect; // 相对 root overlay 的坐标
     final selfBox = context.findRenderObject() as RenderBox?;
     final overlay = Overlay.of(context, rootOverlay: true);
-    final overlayBox =
-        overlay.context.findRenderObject() as RenderBox?;
-    if (parentRect == null ||
-        selfBox == null ||
-        !selfBox.hasSize ||
-        overlayBox == null) {
+    final overlayBox = overlay.context.findRenderObject() as RenderBox?;
+    if (parentRect == null || selfBox == null || !selfBox.hasSize || overlayBox == null) {
       if (_overlapY != null) setState(() => _overlapY = null);
       return;
     }
     // 用 overlay 作为公共 ancestor，确保与 _layoutRect 同坐标系
-    final selfTopInOverlay =
-        selfBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+    final selfTopInOverlay = selfBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     final localParentTop = parentRect.top - selfTopInOverlay.dy;
     final localParentBottom = parentRect.bottom - selfTopInOverlay.dy;
     // 与本菜单 y=[0, height] 的交集
@@ -564,11 +549,9 @@ class _SubMenuShadowMaskState extends State<_SubMenuShadowMask> {
       builder: (context, dir, _) {
         final shadowExtent = widget.shadow.blurRadius +
             widget.shadow.spreadRadius +
-            math.max(widget.shadow.offset.dx.abs(),
-                widget.shadow.offset.dy.abs());
+            math.max(widget.shadow.offset.dx.abs(), widget.shadow.offset.dy.abs());
         // 限制 nearSide 不超过 shadowExtent，避免无意义的越界。
-        final double nearSide =
-            math.min(widget.nearSideExtent, shadowExtent);
+        final double nearSide = math.min(widget.nearSideExtent, shadowExtent);
         // 用父菜单的最大圆角半径作为凹切出入口的圆弧半径，
         // 让凹切路径在 yTop/yBot 转角处与父菜单圆角协调过渡，
         // 避免生硬直角以及在衔接处"削平"阴影的视觉瑕疵。
@@ -593,8 +576,7 @@ class _SubMenuShadowMaskState extends State<_SubMenuShadowMask> {
 }
 
 /// 从 [BorderRadiusGeometry] 中提取最大半径（用于凹切出入口的圆弧过渡）。
-double _extractMaxCornerRadius(
-    BorderRadiusGeometry? geom, TextDirection direction) {
+double _extractMaxCornerRadius(BorderRadiusGeometry? geom, TextDirection direction) {
   if (geom == null) return 0;
   final br = geom.resolve(direction);
   return math.max(
@@ -607,12 +589,12 @@ double _extractMaxCornerRadius(
 @immutable
 class Range {
   const Range(this.start, this.end);
+
   final double start;
   final double end;
 
   @override
-  bool operator ==(Object other) =>
-      other is Range && other.start == start && other.end == end;
+  bool operator ==(Object other) => other is Range && other.start == start && other.end == end;
 
   @override
   int get hashCode => Object.hash(start, end);
@@ -662,8 +644,7 @@ class _SubMenuShadowClipper extends CustomClipper<Path> {
     // 没有有效方向 / 重叠区，直接返回外扩矩形（不做凹切）
     final dir = direction;
     final overlap = overlapY;
-    if (overlap == null ||
-        (dir != MenuPosition.rightTop && dir != MenuPosition.leftTop)) {
+    if (overlap == null || (dir != MenuPosition.rightTop && dir != MenuPosition.leftTop)) {
       path.addRect(Rect.fromLTRB(L, T, R, B));
       return path;
     }
@@ -681,8 +662,7 @@ class _SubMenuShadowClipper extends CustomClipper<Path> {
     // - 以 cornerRadius 为目标值（通常 = 父菜单圆角半径），让阴影
     //   "突变"改为弧形过渡，衔接处更自然。
     final double maxArc = (yBot - yTop) / 2;
-    final double arc =
-        math.max(0.0, math.min(cornerRadius, maxArc));
+    final double arc = math.max(0.0, math.min(cornerRadius, maxArc));
 
     // 仅当"凹切端点位于子菜单内部"时才需要弧形过渡——这意味着该端点
     // 是凹切回归到完整外扩阴影的拐角。当凹切区段一直延伸到子菜单顶/底

@@ -67,13 +67,10 @@ class _MenuScope extends InheritedWidget {
   final CustomMenuState host;
 
   @override
-  bool updateShouldNotify(covariant _MenuScope oldWidget) =>
-      !identical(host, oldWidget.host);
+  bool updateShouldNotify(covariant _MenuScope oldWidget) => !identical(host, oldWidget.host);
 
   static CustomMenuState? of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<_MenuScope>();
-    return scope?.host;
+    return context.dependOnInheritedWidgetOfExactType<_MenuScope>()?.host;
   }
 }
 
@@ -149,8 +146,7 @@ class CustomMenu extends StatefulWidget {
   /// 在 overlay 子树中查找包含该 [context] 的"宿主菜单"。
   /// 返回的 [CustomMenuState] 即创建当前 overlay 的菜单对象。
   /// 当 [context] 不在任何菜单 overlay 中时返回 null。
-  static CustomMenuState? hostMenuOf(BuildContext context) =>
-      _MenuScope.of(context);
+  static CustomMenuState? hostMenuOf(BuildContext context) => _MenuScope.of(context);
 
   @override
   CustomMenuState createState() => CustomMenuState();
@@ -182,8 +178,7 @@ class CustomMenuState extends State<CustomMenu> {
   /// 本菜单经过 [flipIfOverflow] 后实际采用的方向。
   /// 子菜单在 build 时会读取父菜单的此值，以保持整条多级菜单链方向一致。
   /// 同时也用于子菜单内部判断在父侧裁掉阴影。
-  final ValueNotifier<MenuPosition?> effectivePosition =
-      ValueNotifier<MenuPosition?>(null);
+  final ValueNotifier<MenuPosition?> effectivePosition = ValueNotifier<MenuPosition?>(null);
 
   /// 关闭与本菜单"同父级"的、已展开的兄弟 hover 菜单（及其子孙 hover 菜单）。
   void _closeSiblingHoverMenus() {
@@ -240,8 +235,7 @@ class CustomMenuState extends State<CustomMenu> {
     // 解析父级菜单（用于同级互斥判断）。
     // 优先通过 _MenuScope（InheritedWidget）从 overlay 子树中拿到宿主菜单；
     // 若不存在（例如根菜单），再退回 widget 树查找。
-    _parentMenu = _MenuScope.of(context) ??
-        context.findAncestorStateOfType<CustomMenuState>();
+    _parentMenu = _MenuScope.of(context) ?? context.findAncestorStateOfType<CustomMenuState>();
     // 关闭同级已展开的兄弟 hover 菜单
     _closeSiblingHoverMenus();
     final childBox = context.findRenderObject() as RenderBox;
@@ -253,8 +247,7 @@ class CustomMenuState extends State<CustomMenu> {
           final childBox = context.findRenderObject() as RenderBox;
           final parentBox = Overlay.of(context).context.findRenderObject() as RenderBox;
           // print('pSize:${parentBox.size} cSize:${childBox.size}');
-          Widget menuContent =
-              Material(color: Colors.transparent, child: menuChild);
+          Widget menuContent = Material(color: Colors.transparent, child: menuChild);
           if (widget.enableHover) {
             menuContent = MouseRegion(
               opaque: false,
@@ -269,15 +262,11 @@ class CustomMenuState extends State<CustomMenu> {
           final parentDir = _parentMenu?.effectivePosition.value;
           if ((widget.position == MenuPosition.rightTop ||
                   widget.position == MenuPosition.leftTop) &&
-              (parentDir == MenuPosition.rightTop ||
-                  parentDir == MenuPosition.leftTop)) {
+              (parentDir == MenuPosition.rightTop || parentDir == MenuPosition.leftTop)) {
             resolvedPosition = parentDir!;
           }
-          Widget menu = Container(
-            constraints: BoxConstraints(
-              minWidth: 0,
-              maxWidth: parentBox.size.width,
-            ),
+          Widget menu = ConstrainedBox(
+            constraints: BoxConstraints(minWidth: 0, maxWidth: parentBox.size.width),
             child: CustomSingleChildLayout(
               delegate: _MenuLayoutDelegate(
                   position: resolvedPosition,
@@ -304,17 +293,14 @@ class CustomMenuState extends State<CustomMenu> {
           return _MenuScope(
             host: this,
             child: Listener(
-              behavior: widget.enablePassEvent
-                  ? HitTestBehavior.translucent
-                  : HitTestBehavior.opaque,
+              behavior:
+                  widget.enablePassEvent ? HitTestBehavior.translucent : HitTestBehavior.opaque,
               onPointerDown: (PointerDownEvent event) {
                 Offset offset = event.localPosition;
                 // If tap position in menu
                 if (_menuStates != null) {
                   for (var state in _menuStates!) {
-                    if (state._layoutRect
-                            ?.contains(Offset(offset.dx, offset.dy)) ??
-                        false) return;
+                    if (state._layoutRect?.contains(Offset(offset.dx, offset.dy)) ?? false) return;
                   }
                 }
                 _controller.hideMenu();
@@ -322,8 +308,7 @@ class CustomMenuState extends State<CustomMenu> {
                 // but the passed event would trigger [showMenu] again.
                 // So, we use time threshold to solve this bug.
                 _canResponse = false;
-                Future.delayed(const Duration(milliseconds: 300))
-                    .then((_) => _canResponse = true);
+                Future.delayed(const Duration(milliseconds: 300)).then((_) => _canResponse = true);
               },
               child: widget.barrierColor == Colors.transparent
                   ? menu
@@ -584,8 +569,7 @@ class _MenuLayoutDelegate extends SingleChildLayoutDelegate {
           contentOffset = Offset(anchorRightX + gap, anchorTopY);
           break;
         case MenuPosition.leftTop:
-          contentOffset =
-              Offset(anchorLeftX - gap - childSize.width, anchorTopY);
+          contentOffset = Offset(anchorLeftX - gap - childSize.width, anchorTopY);
           break;
       }
     }
