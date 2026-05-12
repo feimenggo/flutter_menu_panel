@@ -23,13 +23,11 @@ class TextMenuItem {
   /// 子菜单尾部的指示图标（默认为右箭头）。仅当 [children] 非空时生效。
   final Widget? trailing;
 
-  const TextMenuItem(
-    this.name,
-    this.onTap, {
-    this.style,
-    this.children,
-    this.trailing,
-  });
+  const TextMenuItem(this.name, this.onTap, {this.style})
+      : children = null,
+        trailing = null;
+
+  const TextMenuItem.subMenu(this.name, {this.onTap, this.style, this.children, this.trailing});
 
   bool get hasChildren => children != null && children!.isNotEmpty;
 }
@@ -239,10 +237,11 @@ class MenuPanelState extends State<MenuPanel> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(child: textWidget),
-            const SizedBox(width: 8),
             item.trailing ??
                 widget.subMenuIndicator ??
-                const Icon(Icons.chevron_right, size: 18, color: Color(0xFF8A8F99)),
+                const Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Icon(Icons.chevron_right, size: 18, color: Color(0xFF8A8F99))),
           ],
         );
       } else {
@@ -262,7 +261,9 @@ class MenuPanelState extends State<MenuPanel> {
       if (item.hasChildren) {
         // 包一层 InkWell，便于 hover 高亮；点击不关闭，让子菜单自行展开
         child = InkWell(
-          onTap: () {}, // 占位：点击不关闭主菜单
+          onTap: () {
+            item.onTap?.call(); // 点击不关闭主菜单，仅尝试回调
+          },
           splashColor: widget.splashColor,
           child: child,
         );
@@ -409,10 +410,9 @@ class _SubMenu extends StatefulWidget {
 }
 
 class _SubMenuState extends State<_SubMenu> {
-  late final ValueNotifier<MenuPosition?> _direction =
-      // 初始值用默认方向作猜测，避免首帧裁切方向未知导致阴影闪烁；
-      // layout 后会根据实际方向更新。
-      ValueNotifier<MenuPosition?>(widget.panel.subMenuPosition);
+  // 初始值用默认方向作猜测，避免首帧裁切方向未知导致阴影闪烁；
+  // layout 后会根据实际方向更新。
+  late final _direction = ValueNotifier<MenuPosition?>(widget.panel.subMenuPosition);
 
   @override
   void dispose() {

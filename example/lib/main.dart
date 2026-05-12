@@ -159,9 +159,8 @@ class _MyHomePageState extends State<MyHomePage> {
         if (kDebugMode) print('点击：书籍预览');
       }),
       // 多级菜单：排序方式
-      TextMenuItem(
+      TextMenuItem.subMenu(
         '排序方式',
-        null,
         children: [
           TextMenuItem('按创建时间', () {
             if (kDebugMode) print('点击：按创建时间');
@@ -187,9 +186,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       // 多级菜单：导出，演示三级
-      TextMenuItem(
+      TextMenuItem.subMenu(
         '导出书籍',
-        null,
+        onTap: () {
+          if (kDebugMode) print('点击：导出书籍');
+        },
         children: [
           TextMenuItem('导出为 TXT', () {
             if (kDebugMode) print('点击：导出为 TXT');
@@ -197,9 +198,8 @@ class _MyHomePageState extends State<MyHomePage> {
           TextMenuItem('导出为 EPUB', () {
             if (kDebugMode) print('点击：导出为 EPUB');
           }),
-          TextMenuItem(
+          TextMenuItem.subMenu(
             '更多格式',
-            null,
             children: [
               TextMenuItem('Markdown', () {
                 if (kDebugMode) print('点击：Markdown');
