@@ -342,6 +342,9 @@ class MenuPanelState extends State<MenuPanel> {
     }
 
     // 用 Stack 把阴影层与内容层叠在一起：阴影层在下，内容层在上。
+    // 使用 StackFit.passthrough 让 Stack 把外部约束直接透传给非 positioned
+    // 子项；这样当外层 Container 设置了 height（或 maxHeight）时，contentLayer
+    // 会按外部约束布局并撑满指定高度，而不是仅按内容收缩。
     final Widget panelBody = Container(
       height: widget.height,
       constraints: widget.maxHeight != null ? BoxConstraints(maxHeight: widget.maxHeight!) : null,
@@ -349,6 +352,7 @@ class MenuPanelState extends State<MenuPanel> {
           ? contentLayer
           : Stack(
               clipBehavior: Clip.none,
+              fit: StackFit.passthrough,
               children: [
                 Positioned.fill(child: shadowLayer),
                 contentLayer,
